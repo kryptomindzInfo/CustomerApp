@@ -1,9 +1,16 @@
+import 'package:beyond_wallet/api_services/check_fee_api.dart';
+import 'package:beyond_wallet/api_services/send_money_to_non_wallet_api.dart';
 import 'package:beyond_wallet/constants/constants.dart';
 import 'package:beyond_wallet/localization/localization.dart';
+import 'package:beyond_wallet/models/check_fee_model.dart';
 import 'package:beyond_wallet/models/send_money_to_non_wallet_model.dart';
+import 'package:beyond_wallet/services/shared_prefs.dart';
 import 'package:beyond_wallet/widgets/button.dart';
+import 'package:beyond_wallet/widgets/sucess_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 class SendMoneyToNonWallet extends StatefulWidget {
   @override
@@ -19,23 +26,28 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
   String note;
   SendMoneyToNonWalletRequestModel sendMoneyData;
   String validTillDate;
-  bool agreeTandC= false;
-  bool requireID= false;
-  bool requireOTP = false;
-  bool senderPaysTrFees= false;
-  bool receiveFromAnyBank = true;
+  Future<CheckFeeResponseModel> _checkFee;
   List countryList = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua &amp; Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia &amp; Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Cape Verde","Cayman Islands","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cruise Ship","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kuwait","Kyrgyz Republic","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Mauritania","Mauritius","Mexico","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Namibia","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Norway","Oman","Pakistan","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre &amp; Miquelon","Samoa","San Marino","Satellite","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","South Africa","South Korea","Spain","Sri Lanka","St Kitts &amp; Nevis","St Lucia","St Vincent","St. Lucia","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad &amp; Tobago","Tunisia","Turkey","Turkmenistan","Turks &amp; Caicos","Uganda","Ukraine","United Arab Emirates","United Kingdom","Uruguay","Uzbekistan","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
+  bool isApiCallProgress = false;
+  CheckFeeRequestModel checkFeeRequestModel;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    checkFeeRequestModel = new CheckFeeRequestModel();
   }
   @override
   Widget build(BuildContext context) {
     sendMoneyData = Provider.of<SendMoneyToNonWalletRequestModel>(context);
+    LocalData localData = Provider.of<LocalData>(context);
     var translate = DemoLocalization.of(context);
     var width = MediaQuery.of(context).size.width;
-    return Form(
+    return isApiCallProgress?Container(
+      height: MediaQuery.of(context).size.height*0.6,
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
+    ):Form(
       key: _formKey,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -51,9 +63,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                   ? translate.getTranslatedValue('Invalid Mobile Number')
                   : null,
               onChanged: (val) {
-                setState(() {
-                  sendMoneyData.receiverMobile= val;
-                });
+                sendMoneyData.receiverMobile= val;
               },
               decoration: inputDecoration.copyWith(
                 labelText: translate.getTranslatedValue('Mobile Number'),
@@ -75,9 +85,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                         ? translate.getTranslatedValue('Given Name is required')
                         : null,
                     onChanged: (val) {
-                      setState(() {
-                        sendMoneyData.receiverGivenName = val;
-                      });
+                      sendMoneyData.receiverGivenName = val;
                     },
                     decoration: inputDecoration.copyWith(
                       labelText: translate.getTranslatedValue('Given Name'),
@@ -96,9 +104,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                         ? translate.getTranslatedValue('Family Name is required')
                         : null,
                     onChanged: (val) {
-                      setState(() {
-                        sendMoneyData.receiverFamilyName = val;
-                      });
+                      sendMoneyData.receiverFamilyName = val;
                     },
                     decoration: inputDecoration.copyWith(
                       labelText: translate.getTranslatedValue('Family Name'),
@@ -112,12 +118,12 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
               keyboardType:TextInputType.numberWithOptions(
                 decimal: true,
               ) ,
-              // validator: (val) =>
-              // val.isEmpty || val.length<10
-              //     ? translate.getTranslatedValue('Invalid Mobile Number')
-              //     : null,
+              validator: (val) =>
+              val.isEmpty
+                  ? translate.getTranslatedValue('Invalid Mobile Number')
+                  : null,
               onChanged: (val) {
-
+                sendMoneyData.receiverAddress = val;
               },
               decoration: inputDecoration.copyWith(
                 labelText: translate.getTranslatedValue('Address'),
@@ -138,9 +144,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                         ? translate.getTranslatedValue('Invalid Mobile Number')
                         : null,
                     onChanged: (val) {
-                      setState(() {
-                        mobile = val;
-                      });
+                      sendMoneyData.receiverState = val;
                     },
                     decoration: inputDecoration.copyWith(
                       labelText: translate.getTranslatedValue('State'),
@@ -159,9 +163,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                         ? translate.getTranslatedValue('Invalid Mobile Number')
                         : null,
                     onChanged: (val) {
-                      setState(() {
-                        mobile = val;
-                      });
+                      sendMoneyData.receiverZip = val;
                     },
                     decoration: inputDecoration.copyWith(
                       labelText: translate.getTranslatedValue('Zip Code'),
@@ -190,6 +192,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                       );
                     }).toList(),
                     onChanged: (val){
+                      sendMoneyData.receiverCountry=val;
                     },
                   ),
                 ),
@@ -204,9 +207,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                         ? translate.getTranslatedValue('Email is required')
                         : null,
                     onChanged: (val) {
-                      setState(() {
-                        sendMoneyData.receiverEmail = val;
-                      });
+                      sendMoneyData.receiverEmail = val;
                     },
                     decoration: inputDecoration.copyWith(
                       labelText: translate.getTranslatedValue('Email'),
@@ -218,10 +219,10 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
             Row(
               children: <Widget>[
                 Checkbox(
-                  value: requireID,
+                  value: sendMoneyData.withoutId??false,
                   onChanged: (val){
                     setState(() {
-                      requireID =  val;
+                      sendMoneyData.withoutId =  val;
                     });
                   },
                 ),
@@ -233,10 +234,10 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
             Row(
               children: <Widget>[
                 Checkbox(
-                  value: requireOTP,
+                  value: sendMoneyData.requireOtp??false,
                   onChanged: (val){
                     setState(() {
-                      requireOTP =  val;
+                      sendMoneyData.requireOtp =  val;
                     });
                   },
                 ),
@@ -274,7 +275,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                       );
                     }).toList(),
                     onChanged: (val){
-                      sendMoneyData.receiverCountry = val;
+                      sendMoneyData.receiverIdentificationCountry = val;
                     },
                   ),
                 ),
@@ -317,9 +318,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                         ? translate.getTranslatedValue('Invalid ID Number')
                         : null,
                     onChanged: (val) {
-                      setState(() {
-                        sendMoneyData.receiverIdentificationNumber = val;
-                      });
+                      sendMoneyData.receiverIdentificationNumber = int.parse(val);
                     },
                     decoration: inputDecoration.copyWith(
                       labelText: translate.getTranslatedValue('Identification Number'),
@@ -369,26 +368,44 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                 decimal: true,
               ) ,
               validator: (val) =>
-              val.isEmpty || val.length<10
+              val.isEmpty
                   ? translate.getTranslatedValue('Amount is required')
                   : null,
               onChanged: (val) {
+                checkFeeRequestModel.amount = int.parse(val);
+                checkFeeRequestModel.transType = 'Wallet to Non Wallet';
                 setState(() {
-                  sendMoneyData.sendingAmount = int.parse(val);
+                  _checkFee = CheckFeeApi().checkFee(checkFeeRequestModel, localData.token);
+                  sendMoneyData.receiverIdentificationAmount = int.parse(val);
                 });
               },
               decoration: inputDecoration.copyWith(
                 labelText: translate.getTranslatedValue('Amount'),
               ),
             ),
+            FutureBuilder<CheckFeeResponseModel>(
+                future: _checkFee,
+                builder: (context, snapshot) {
+                  double fees= 0.0;
+                  if(snapshot.hasData){
+                    fees =snapshot.data.fee;
+                  }
+                  return Text(
+                    'XOF $fees will be charged as fee and XOF ${sendMoneyData.receiverIdentificationAmount??0} will be sent to the receiver',
+                    style: TextStyle(
+                        color: primaryColor,
+                        fontSize: 17.0
+                    ),
+                  );
+                }
+            ),
+            SizedBox(height: 10.0,),
             TextFormField(
               keyboardType: TextInputType.multiline,
               minLines: 5,//Normal textInputField will be displayed
               maxLines: 5,// when user presses enter it will adapt to it
               onChanged: (val) {
-                setState(() {
-                  sendMoneyData.note = val;
-                });
+                sendMoneyData.note = val;
               },
               decoration:inputDecoration.copyWith(
                   labelText: translate.getTranslatedValue("Note"),
@@ -398,10 +415,10 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
             Row(
               children: <Widget>[
                 Checkbox(
-                  value: senderPaysTrFees,
+                  value: sendMoneyData.isInclusive??false,
                   onChanged: (val){
                     setState(() {
-                      senderPaysTrFees =  val;
+                      sendMoneyData.isInclusive =  val;
                     });
                   },
                 ),
@@ -413,10 +430,10 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
             Row(
               children: <Widget>[
                 Checkbox(
-                  value: receiveFromAnyBank,
+                  value: sendMoneyData.interbank??true,
                   onChanged: (val){
                     setState(() {
-                      receiveFromAnyBank =  val;
+                      sendMoneyData.interbank =  val;
                     });
                   },
                 ),
@@ -428,10 +445,10 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
             Row(
               children: <Widget>[
                 Checkbox(
-                  value: agreeTandC,
+                  value: sendMoneyData.acceptedTerms??false,
                   onChanged: (val){
                     setState(() {
-                      agreeTandC =  val;
+                      sendMoneyData.acceptedTerms =  val;
                     });
                   },
                 ),
@@ -462,12 +479,30 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
             ),
             GreenButton(
               text: 'Proceed',
-              onClicked: (){
+              onClicked: ()async{
+                sendMoneyData.withoutId=!sendMoneyData.withoutId??true;
+                sendMoneyData.requireOtp=sendMoneyData.requireOtp??false;
+                sendMoneyData.isInclusive=sendMoneyData.isInclusive??false;
+                sendMoneyData.interbank=sendMoneyData.interbank??true;
+                sendMoneyData.acceptedTerms = sendMoneyData.acceptedTerms??false;
                 sendMoneyData.receiverIdentificationValidTill = validTillDate;
-                sendMoneyData.requireOtp = requireOTP?'1' : '0';
-                sendMoneyData.withoutId= requireID? '0' : '1';
                 print(sendMoneyData.toJson());
-              },
+                setState(() {
+                  isApiCallProgress = true;
+                });
+                SendMoneyToNonWalletResponseModel responseModel =await SendMoneyToNonWalletApi().sendMoneyToNonWallet(localData.token, sendMoneyData);
+                setState(() {
+                  isApiCallProgress = false;
+                });
+                if(responseModel!=null){
+                  Fluttertoast.showToast(msg: responseModel.message);
+                  if(responseModel.status==1){
+                    Get.offAll(()=>SuccessScreen(message: responseModel.message,balance: responseModel.balance,));
+                  }
+                }else{
+                  Fluttertoast.showToast(msg: 'Something went wrong');
+                }
+                },
             )
           ],
         ),

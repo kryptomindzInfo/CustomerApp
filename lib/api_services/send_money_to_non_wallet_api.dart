@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:beyond_wallet/constants/constants.dart';
+import 'package:beyond_wallet/models/send_money_to_non_wallet_model.dart';
 import 'package:beyond_wallet/models/send_money_to_wallet_model.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class SendMoneyToWalletApi {
-  Future<SendMoneyToWalletResponseModel> sendMoneyToWallet(String  token,SendMoneyToWalletRequestModel requestModel) async {
-    String url = baseURL+"user/checkFee";
+class SendMoneyToNonWalletApi {
+  Future<SendMoneyToNonWalletResponseModel> sendMoneyToNonWallet(String  token,SendMoneyToNonWalletRequestModel requestModel) async {
+    String url = baseURL+"user/interBank/sendMoneyToNonWallet";
     try{
       HttpClient httpClient = new HttpClient();
       print(requestModel.toJson());
@@ -19,9 +21,9 @@ class SendMoneyToWalletApi {
         String reply = await response.transform(utf8.decoder).join();
         var body = json.decode(reply);
         if(body['status']==1){
-          return SendMoneyToWalletResponseModel.fromJson(body);
+          return SendMoneyToNonWalletResponseModel.fromJson(body);
         }else{
-          SendMoneyToWalletResponseModel responseModel = new SendMoneyToWalletResponseModel();
+          SendMoneyToNonWalletResponseModel responseModel = new SendMoneyToNonWalletResponseModel();
           responseModel.status=0;
           return responseModel;
         }

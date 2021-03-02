@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:beyond_wallet/constants/constants.dart';
-import 'package:beyond_wallet/models/send_money_to_wallet_model.dart';
+import 'package:beyond_wallet/models/check_fee_model.dart';
 import 'dart:convert';
 
-class SendMoneyToWalletApi {
-  Future<SendMoneyToWalletResponseModel> sendMoneyToWallet(String  token,SendMoneyToWalletRequestModel requestModel) async {
+class CheckFeeApi {
+  Future<CheckFeeResponseModel> checkFee(CheckFeeRequestModel requestModel, String  token) async {
     String url = baseURL+"user/checkFee";
     try{
       HttpClient httpClient = new HttpClient();
@@ -18,10 +18,11 @@ class SendMoneyToWalletApi {
       if (response.statusCode == 200 || response.statusCode == 400) {
         String reply = await response.transform(utf8.decoder).join();
         var body = json.decode(reply);
+        print(body);
         if(body['status']==1){
-          return SendMoneyToWalletResponseModel.fromJson(body);
+          return CheckFeeResponseModel.fromJson(body);
         }else{
-          SendMoneyToWalletResponseModel responseModel = new SendMoneyToWalletResponseModel();
+          CheckFeeResponseModel responseModel = new CheckFeeResponseModel();
           responseModel.status=0;
           return responseModel;
         }

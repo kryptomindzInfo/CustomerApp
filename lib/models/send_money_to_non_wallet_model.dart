@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final sendMoneyToNonWalletRequestModel = sendMoneyToNonWalletRequestModelFromJson(jsonString);
+
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -8,60 +12,122 @@ String sendMoneyToNonWalletRequestModelToJson(SendMoneyToNonWalletRequestModel d
 
 class SendMoneyToNonWalletRequestModel extends ChangeNotifier{
   SendMoneyToNonWalletRequestModel({
+    this.acceptedTerms,
+    this.ccode,
+    this.interbank,
+    this.isInclusive,
     this.note,
-    this.withoutId,
-    this.requireOtp,
-    this.receiverMobile,
-    this.receiverGivenName,
-    this.receiverFamilyName,
+    this.receiverAddress,
     this.receiverCountry,
     this.receiverEmail,
-    this.receiverIdentificationType,
+    this.receiverFamilyName,
+    this.receiverGivenName,
+    this.receiverIdentificationAmount,
+    this.receiverIdentificationCountry,
     this.receiverIdentificationNumber,
+    this.receiverIdentificationType,
     this.receiverIdentificationValidTill,
-    this.sendingAmount,
+    this.receiverMobile,
+    this.receiverState,
+    this.receiverZip,
+    this.requireOtp,
+    this.withoutId,
   });
 
+  bool acceptedTerms;
+  String ccode;
+  bool interbank;
+  bool isInclusive;
   String note;
-  String withoutId;
-  String requireOtp;
-  String receiverMobile;
-  String receiverGivenName;
-  String receiverFamilyName;
+  String receiverAddress;
   String receiverCountry;
   String receiverEmail;
+  String receiverFamilyName;
+  String receiverGivenName;
+  int receiverIdentificationAmount;
+  String receiverIdentificationCountry;
+  int receiverIdentificationNumber;
   String receiverIdentificationType;
-  String receiverIdentificationNumber;
   String receiverIdentificationValidTill;
-  int sendingAmount;
+  String receiverMobile;
+  String receiverState;
+  String receiverZip;
+  bool requireOtp;
+  bool withoutId;
 
   factory SendMoneyToNonWalletRequestModel.fromJson(Map<String, dynamic> json) => SendMoneyToNonWalletRequestModel(
+    acceptedTerms: json["acceptedTerms"],
+    ccode: json["ccode"],
+    interbank: json["interbank"],
+    isInclusive: json["isInclusive"],
     note: json["note"],
-    withoutId: json["withoutID"],
-    requireOtp: json["requireOTP"],
-    receiverMobile: json["receiverMobile"],
-    receiverGivenName: json["receiverGivenName"],
-    receiverFamilyName: json["receiverFamilyName"],
+    receiverAddress: json["receiverAddress"],
     receiverCountry: json["receiverCountry"],
     receiverEmail: json["receiverEmail"],
-    receiverIdentificationType: json["receiverIdentificationType"],
+    receiverFamilyName: json["receiverFamilyName"],
+    receiverGivenName: json["receiverGivenName"],
+    receiverIdentificationAmount: json["receiverIdentificationAmount"],
+    receiverIdentificationCountry: json["receiverIdentificationCountry"],
     receiverIdentificationNumber: json["receiverIdentificationNumber"],
+    receiverIdentificationType: json["receiverIdentificationType"],
     receiverIdentificationValidTill: json["receiverIdentificationValidTill"],
-    sendingAmount: json["sending_amount"],
+    receiverMobile: json["receiverMobile"],
+    receiverState: json["receiverState"],
+    receiverZip: json["receiverZip"],
+    requireOtp: json["requireOTP"],
+    withoutId: json["withoutID"],
   );
 
   Map<String, dynamic> toJson() => {
+    "acceptedTerms": acceptedTerms,
+    "ccode": ccode,
+    "interbank": interbank,
+    "isInclusive": isInclusive,
     "note": note,
-    "withoutID": withoutId,
-    "requireOTP": requireOtp,
-    "receiverMobile": receiverMobile,
-    "receiverGivenName": receiverGivenName,
-    "receiverFamilyName": receiverFamilyName,
+    "receiverAddress": receiverAddress,
     "receiverCountry": receiverCountry,
     "receiverEmail": receiverEmail,
-    "receiverIdentificationType": receiverIdentificationType,
+    "receiverFamilyName": receiverFamilyName,
+    "receiverGivenName": receiverGivenName,
+    "receiverIdentificationAmount": receiverIdentificationAmount,
+    "receiverIdentificationCountry": receiverIdentificationCountry,
     "receiverIdentificationNumber": receiverIdentificationNumber,
+    "receiverIdentificationType": receiverIdentificationType,
     "receiverIdentificationValidTill": receiverIdentificationValidTill,
-    "sending_amount": sendingAmount,
+    "receiverMobile": receiverMobile,
+    "receiverState": receiverState,
+    "receiverZip": receiverZip,
+    "requireOTP": requireOtp,
+    "withoutID": withoutId,
+  };
+}
+
+
+
+SendMoneyToNonWalletResponseModel sendMoneyToNonWalletResponseModelFromJson(String str) => SendMoneyToNonWalletResponseModel.fromJson(json.decode(str));
+
+String sendMoneyToNonWalletResponseModelToJson(SendMoneyToNonWalletResponseModel data) => json.encode(data.toJson());
+
+class SendMoneyToNonWalletResponseModel {
+  SendMoneyToNonWalletResponseModel({
+    this.status,
+    this.message,
+    this.balance,
+  });
+
+  int status;
+  String message;
+  double balance;
+
+  factory SendMoneyToNonWalletResponseModel.fromJson(Map<String, dynamic> json) => SendMoneyToNonWalletResponseModel(
+    status: json["status"],
+    message: json["message"],
+    balance: json["balance"].toDouble(),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "status": status,
+    "message": message,
+    "balance": balance,
   };
 }

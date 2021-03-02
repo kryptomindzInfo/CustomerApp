@@ -10,6 +10,7 @@ import 'package:beyond_wallet/models/get_balance_model.dart';
 import 'package:beyond_wallet/models/get_contacts_model.dart';
 import 'package:beyond_wallet/models/get_transaction_history_model.dart';
 import 'package:beyond_wallet/models/login_model.dart';
+import 'package:beyond_wallet/screens/pay_bills/show_merchant_list.dart';
 import 'package:beyond_wallet/screens/send_money/send_money.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
 import 'package:beyond_wallet/widgets/appBar.dart';
@@ -85,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
                        ),
                        color: primaryColor,
                        text: 'Pay Bills',
-                       function: (){},
+                       function: (){
+                         Get.to(()=>ShowMerchantList());
+                       },
                      )
                    ],
                  ),

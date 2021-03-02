@@ -1,8 +1,10 @@
+import 'package:beyond_wallet/api_services/check_fee_api.dart';
 import 'package:beyond_wallet/api_services/get_user_details_api.dart';
 import 'package:beyond_wallet/api_services/send_money_to_wallet_api.dart';
 import 'package:beyond_wallet/constants/constants.dart';
 import 'package:beyond_wallet/controller/balance_controller.dart';
 import 'package:beyond_wallet/localization/localization.dart';
+import 'package:beyond_wallet/models/check_fee_model.dart';
 import 'package:beyond_wallet/models/get_user_details_model.dart';
 import 'package:beyond_wallet/models/send_money_to_wallet_model.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
@@ -32,6 +34,8 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
   bool isApiCallProgress = false;
   bool disableMobileNumber = false;
   Future _getUserDetails;
+  Future<CheckFeeResponseModel> _checkFee;
+  CheckFeeRequestModel checkFeeRequestModel;
   double balance;
   @override
   void initState() {
@@ -40,6 +44,7 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
     localData= Provider.of<LocalData>(context,listen: false);
     getBalance = Provider.of<BalanceController>(context,listen:false);
     balance = getBalance.balance;
+    checkFeeRequestModel = new CheckFeeRequestModel();
   }
   @override
   Widget build(BuildContext context) {
@@ -141,9 +146,13 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
                   ? translate.getTranslatedValue('Amount is required')
                   : null,
               onChanged: (val) {
+                checkFeeRequestModel.amount = int.parse(val);
+                checkFeeRequestModel.transType = 'Wallet to Wallet';
                 setState(() {
                   amount = val;
                   balance = getBalance.balance - double.parse(val);
+
+                  _checkFee = CheckFeeApi().checkFee(checkFeeRequestModel, localData.token);
                 });
               },
               decoration:inputDecoration.copyWith(labelText: translate.getTranslatedValue("Amount")),
@@ -173,12 +182,21 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
               ),
             ),
             SizedBox(height: 10.0,),
-            Text(
-              'XOF 0.00 will be charged as fee and XOF 0 will be sent to the receiver',
-              style: TextStyle(
-                  color: primaryColor,
-                  fontSize: 17.0
-              ),
+            FutureBuilder<CheckFeeResponseModel>(
+              future: _checkFee,
+              builder: (context, snapshot) {
+                double fees= 0.0;
+                if(snapshot.hasData){
+                  fees =snapshot.data.fee;
+                }
+                return Text(
+                  'XOF $fees will be charged as fee and XOF 0 will be sent to the receiver',
+                  style: TextStyle(
+                      color: primaryColor,
+                      fontSize: 17.0
+                  ),
+                );
+              }
             ),
             Row(
               children: <Widget>[
@@ -225,9 +243,9 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
                           requestModel.note = note;
                           requestModel.receiverMobile = mobile;
                           requestModel.sendingAmount = int.parse(amount);
-                          setState(() {
-                            isApiCallProgress = true;
-                          });
+                            setState(() {
+                              isApiCallProgress = true;
+                            });
                           SendMoneyToWalletResponseModel responseModel =await SendMoneyToWalletApi().sendMoneyToWallet(localData.token, requestModel);
                           setState(() {
                             isApiCallProgress = false;
