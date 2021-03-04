@@ -24,7 +24,7 @@ class SendMoneyToWallet extends StatefulWidget {
 class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
   final _formKey = GlobalKey<FormState>();
   String mobile='';
-  String amount;
+  String amount='0.0';
   String note;
   LocalData localData;
   BalanceController getBalance;
@@ -54,224 +54,236 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
       child: Center(
         child: CircularProgressIndicator(),
       ),
-    ):Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextFormField(
-              maxLength: 10,
-              keyboardType:TextInputType.numberWithOptions(
-                decimal: true,
-              ) ,
-              validator: (val) =>
-              val.isEmpty || val.length<10
-                  ? translate.getTranslatedValue('Invalid Mobile Number')
-                  : null,
-              onChanged: (val) {
-                setState(() {
-                  mobile = val;
-                  if(mobile.length==10){
-                    _getUserDetails = GetUserDetailsApi().getUserDetails(localData.token, mobile);
-                  }
-                });
-              },
-              readOnly: disableMobileNumber,
-              decoration: inputDecoration.copyWith(
-                labelText: translate.getTranslatedValue('Mobile Number'),
-              ),
-            ),
-            SizedBox(height: 15.0,),
-            mobile.length==10?Padding(
-              padding: const EdgeInsets.only(bottom: 15.0),
-              child: FutureBuilder<GetUserDetailsResponseModel>(
-                future: _getUserDetails,
-                builder: (context, snapshot) {
-                  if(snapshot.hasData){
-                    if(mobile==localData.data.mobile){
-                      return Text(
-                        'Cannot transfer money to your own wallet.',
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.red
-                        ),
-                      );
-                    }else{
-                      if(snapshot.data.status==1){
-                        List<Map> user = [];
-                        user.add({'name':snapshot.data.user.name,'id' : snapshot.data.user.id});
-                        return DropdownButtonFormField(
-                          isExpanded: true,
-                          decoration: inputDecoration.copyWith(
-                              labelText:translate.getTranslatedValue('Select Receiver Name')
-                          ),
-                          items:user.map((user){
-                            return DropdownMenuItem(
-                              value: user['name'],
-                              child: Text(
-                                user['name']+' '+user['id'],
+    ):Container(
+      height: MediaQuery.of(context).size.height*0.77,
+      child: FutureBuilder<CheckFeeResponseModel>(
+        future: _checkFee,
+        builder: (context, snapshot) {
+          double fees= 0.0;
+          if(snapshot.hasData){
+            fees =snapshot.data.fee;
+          }
+          return Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextFormField(
+                    maxLength: 10,
+                    keyboardType:TextInputType.numberWithOptions(
+                      decimal: true,
+                    ) ,
+                    validator: (val) =>
+                    val.isEmpty || val.length<10
+                        ? translate.getTranslatedValue('Invalid Mobile Number')
+                        : null,
+                    onChanged: (val) {
+                      setState(() {
+                        mobile = val;
+                        if(mobile.length==10){
+                          _getUserDetails = GetUserDetailsApi().getUserDetails(localData.token, mobile);
+                        }
+                      });
+                    },
+                    readOnly: disableMobileNumber,
+                    decoration: inputDecoration.copyWith(
+                      labelText: translate.getTranslatedValue('Mobile Number'),
+                    ),
+                  ),
+                  SizedBox(height: 15.0,),
+                  mobile.length==10?Padding(
+                    padding: const EdgeInsets.only(bottom: 15.0),
+                    child: FutureBuilder<GetUserDetailsResponseModel>(
+                      future: _getUserDetails,
+                      builder: (context, snapshot) {
+                        if(snapshot.hasData){
+                          if(mobile==localData.data.mobile){
+                            return Text(
+                              'Cannot transfer money to your own wallet.',
+                              style: TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.red
                               ),
                             );
-                          }).toList(),
-                          onChanged: (val){
-                            disableMobileNumber = true;
-                            accountExists = true;
-                          },
-                        );
-                      }else{
-                        return Text(
-                          'Wallet with this mobile number does not exists',
-                          style: TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.red
-                          ),
-                        );
+                          }else{
+                            if(snapshot.data.status==1){
+                              List<Map> user = [];
+                              user.add({'name':snapshot.data.user.name,'id' : snapshot.data.user.walletId});
+                              return DropdownButtonFormField(
+                                validator: (val) => val==null
+                                    ? translate.getTranslatedValue('Receiver name can not be empty')
+                                    : null,
+                                isExpanded: true,
+                                decoration: inputDecoration.copyWith(
+                                    labelText:translate.getTranslatedValue('Select Receiver Name')
+                                ),
+                                items:user.map((user){
+                                  return DropdownMenuItem(
+                                    value: user['name'],
+                                    child: Text(
+                                      user['name']+' '+user['id'],
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (val){
+                                  disableMobileNumber = true;
+                                  accountExists = true;
+                                },
+                              );
+                            }else{
+                              return Text(
+                                'Wallet with this mobile number does not exists',
+                                style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.red
+                                ),
+                              );
+                            }
+                          }
+                        }else{
+                          return Center(child: CircularProgressIndicator());
+                        }
                       }
-                    }
-                  }else{
-                    return CircularProgressIndicator();
-                  }
-                }
-              ),
-            ):Offstage(),
-            TextFormField(
-              keyboardType:TextInputType.numberWithOptions(
-                decimal: true,
-              ) ,
-              validator: (val) =>
-              val.isEmpty
-                  ? translate.getTranslatedValue('Amount is required')
-                  : null,
-              onChanged: (val) {
-                checkFeeRequestModel.amount = int.parse(val);
-                checkFeeRequestModel.transType = 'Wallet to Wallet';
-                setState(() {
-                  amount = val;
-                  balance = getBalance.balance - double.parse(val);
+                    ),
+                  ):Offstage(),
+                  TextFormField(
+                    keyboardType:TextInputType.numberWithOptions(
+                      decimal: true,
+                    ) ,
+                    validator: (val) =>
+                    val.isEmpty
+                        ? translate.getTranslatedValue('Amount is required')
+                        : null,
+                    onChanged: (val) {
+                      checkFeeRequestModel.amount = int.parse(val);
+                      checkFeeRequestModel.transType = 'Wallet to Wallet';
+                      setState(() {
+                        amount = val;
+                        if(val.length==0){
+                          balance = getBalance.balance;
+                        }else{
+                          balance = getBalance.balance - double.parse(val);
+                        }
+                        _checkFee = CheckFeeApi().checkFee(checkFeeRequestModel, localData.token);
+                      });
+                    },
+                    decoration:inputDecoration.copyWith(labelText: translate.getTranslatedValue("Amount")),
 
-                  _checkFee = CheckFeeApi().checkFee(checkFeeRequestModel, localData.token);
-                });
-              },
-              decoration:inputDecoration.copyWith(labelText: translate.getTranslatedValue("Amount")),
+                  ),
+                  SizedBox(height: 10.0,),
+                  Text(
+                    'Wallet Balance: XOF $balance',
+                    style: TextStyle(
+                        color: primaryColor,
+                        fontSize: 17.0
+                    ),
+                  ),
+                  SizedBox(height: 10.0,),
+                  Text(
+                    'XOF $fees will be charged as fee and XOF 0 will be sent to the receiver',
+                    style: TextStyle(
+                        color: primaryColor,
+                        fontSize: 17.0
+                    ),
+                  ),
+                  SizedBox(height: 15.0,),
+                  TextFormField(
+                    keyboardType: TextInputType.multiline,
 
-            ),
-            SizedBox(height: 15.0,),
-            TextFormField(
-              keyboardType: TextInputType.multiline,
-              minLines: 5,//Normal textInputField will be displayed
-              maxLines: 5,// when user presses enter it will adapt to it
-              onChanged: (val) {
-                setState(() {
-                  note = val;
-                });
-              },
-              decoration:inputDecoration.copyWith(
-                  labelText: translate.getTranslatedValue("Note"),
-                  alignLabelWithHint: true
-              ),
-            ),
-            SizedBox(height: 10.0,),
-            Text(
-              'Wallet Balance: XOF $balance',
-              style: TextStyle(
-                color: primaryColor,
-                fontSize: 17.0
-              ),
-            ),
-            SizedBox(height: 10.0,),
-            FutureBuilder<CheckFeeResponseModel>(
-              future: _checkFee,
-              builder: (context, snapshot) {
-                double fees= 0.0;
-                if(snapshot.hasData){
-                  fees =snapshot.data.fee;
-                }
-                return Text(
-                  'XOF $fees will be charged as fee and XOF 0 will be sent to the receiver',
-                  style: TextStyle(
-                      color: primaryColor,
-                      fontSize: 17.0
+                    onChanged: (val) {
+                      setState(() {
+                        note = val;
+                      });
+                    },
+                    decoration:inputDecoration.copyWith(
+                        labelText: translate.getTranslatedValue("Note"),
+                        alignLabelWithHint: true
+                    ),
                   ),
-                );
-              }
-            ),
-            Row(
-              children: <Widget>[
-                Checkbox(
-                  value: agreeTandC,
-                  onChanged: (val){
-                    setState(() {
-                      agreeTandC =  val;
-                    });
-                  },
-                ),
-                RichText(
-                  text: TextSpan(
-                      children: [
-                        TextSpan(
-                            text: translate.getTranslatedValue("I have read the"),
-                            style: TextStyle(
-                                color: Colors.black54
-                            )
-                        ),
-                        TextSpan(
-                            text: translate.getTranslatedValue("Terms and Conditions"),
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.pop(context);
-                              }
-                        ),
-                      ]
-                  ),
-                )
-              ],
-            ),
-            GreenButton(
-                text: translate.getTranslatedValue('Proceed'),
-                onClicked: () async {
-                  if(_formKey.currentState.validate()){
-                    if(agreeTandC){
-                      if(accountExists){
-                          SendMoneyToWalletRequestModel requestModel = new SendMoneyToWalletRequestModel();
-                          requestModel.note = note;
-                          requestModel.receiverMobile = mobile;
-                          requestModel.sendingAmount = int.parse(amount);
-                            setState(() {
-                              isApiCallProgress = true;
-                            });
-                          SendMoneyToWalletResponseModel responseModel =await SendMoneyToWalletApi().sendMoneyToWallet(localData.token, requestModel);
+                  SizedBox(height: 10.0,),
+                  Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: agreeTandC,
+                        onChanged: (val){
                           setState(() {
-                            isApiCallProgress = false;
+                            agreeTandC =  val;
                           });
-                          if(responseModel!=null){
-                            Fluttertoast.showToast(msg: responseModel.message);
-                            if(responseModel.status==1){
-                              Get.offAll(()=>SuccessScreen(message: responseModel.message,balance: responseModel.balance,));
+                        },
+                      ),
+                      RichText(
+                        text: TextSpan(
+                            children: [
+                              TextSpan(
+                                  text: translate.getTranslatedValue("I have read the"),
+                                  style: TextStyle(
+                                      color: Colors.black54
+                                  )
+                              ),
+                              TextSpan(
+                                  text: translate.getTranslatedValue("Terms and Conditions"),
+                                  style: TextStyle(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.pop(context);
+                                    }
+                              ),
+                            ]
+                        ),
+                      )
+                    ],
+                  ),
+                  Spacer(),
+                  GreenButton(
+                      text: amount=='0.0'?"Proceed":"Collect ${double.parse(amount)+fees} Proceed",
+                      onClicked: () async {
+                        if(_formKey.currentState.validate()){
+                          if(agreeTandC){
+                            if(accountExists){
+                                SendMoneyToWalletRequestModel requestModel = new SendMoneyToWalletRequestModel();
+                                requestModel.note = note;
+                                requestModel.receiverMobile = mobile;
+                                requestModel.sendingAmount = int.parse(amount);
+                                  setState(() {
+                                    isApiCallProgress = true;
+                                  });
+                                SendMoneyToWalletResponseModel responseModel =await SendMoneyToWalletApi().sendMoneyToWallet(localData.token, requestModel);
+                                setState(() {
+                                  isApiCallProgress = false;
+                                  disableMobileNumber = false;
+                                  amount="0.0";
+                                });
+                                if(responseModel!=null){
+                                  Fluttertoast.showToast(msg: responseModel.message);
+                                  if(responseModel.status==1){
+                                    Get.offAll(()=>SuccessScreen(message: responseModel.message,balance: responseModel.balance,));
+                                  }
+                                }else{
+                                  Fluttertoast.showToast(msg: 'Something went wrong');
+                                }
+
+                            }
+                            else{
+                              Fluttertoast.showToast(msg: 'This Wallet account does no not exists, please check phone number again');
                             }
                           }else{
-                            Fluttertoast.showToast(msg: 'Something went wrong');
+                            Fluttertoast.showToast(msg: 'Agree to the Terms and Condition');
                           }
-
+                        }
                       }
-                      else{
-                        Fluttertoast.showToast(msg: 'This Wallet account does no not exists, please check phone number again');
-                      }
-                    }else{
-                      Fluttertoast.showToast(msg: 'Agree to the Terms and Condition');
-                    }
-                  }
-                }
+                  ),
+                  SizedBox(height: 20.0,),
+                ],
+              ),
             ),
-            SizedBox(height: 20.0,),
-          ],
-        ),
+          );
+        }
       ),
     );
   }

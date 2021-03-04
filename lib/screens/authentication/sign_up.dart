@@ -62,7 +62,22 @@ class _SignUpState extends State<SignUp> {
                   onChanged: (val) {
                     signUpData.name = val;
                   },
-                  decoration: inputDecoration.copyWith(labelText: translate.getTranslatedValue("Name")),
+                  decoration: inputDecoration.copyWith(labelText: translate.getTranslatedValue("Given Name")),
+                ),
+                SizedBox(height: 10.0,),
+                TextFormField(
+                  validator: (val) =>
+                  val.length<10
+                      ? translate.getTranslatedValue('Invalid Family Name')
+                      : null,
+                  style: TextStyle(
+                    color: Colors.black87,
+                  ),
+                  onChanged: (val) {
+                    signUpData.address = val;
+                  },
+                  decoration: inputDecoration.copyWith(labelText: translate.getTranslatedValue("Family Name")),
+
                 ),
                 SizedBox(height: 10.0,),
                 TextFormField(
@@ -97,24 +112,6 @@ class _SignUpState extends State<SignUp> {
                 ),
                 SizedBox(height: 10.0,),
                 TextFormField(
-                  validator: (val) =>
-                  val.length<10
-                      ? translate.getTranslatedValue('enter valid address')
-                      : null,
-                  style: TextStyle(
-                      color: Colors.black87,
-                  ),
-                  onChanged: (val) {
-                    signUpData.address = val;
-                  },
-                  decoration: inputDecoration.copyWith(labelText: translate.getTranslatedValue("Address")),
-
-                ),
-                SizedBox(height: 10.0,),
-                TextFormField(
-                  keyboardType:TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
                   obscureText: true,
                   validator: (val) =>
                   val.isEmpty || val.length<6

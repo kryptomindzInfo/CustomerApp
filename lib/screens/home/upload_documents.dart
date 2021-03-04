@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:beyond_wallet/api_services/skip_upload_docs_api.dart';
 import 'package:beyond_wallet/api_services/upload_docs_hash_api.dart';
 import 'package:beyond_wallet/api_services/upload_files_api.dart';
@@ -45,7 +46,26 @@ class _UploadDocumentsState extends State<UploadDocuments> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Please upload the following documents:',
+              style: TextStyle(
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold
+              )
+            ),
+            SizedBox(height: 20.0,),
+            Text(
+              '1. National Id\n'
+                  '2. Passport\n'
+                  '3. Driving Lisence',
+              style: TextStyle(
+                  fontSize: 17.0,
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            SizedBox(height: 20.0,),
             DottedBorder(
                 color: Colors.black,
                 strokeWidth: 1,
@@ -79,7 +99,29 @@ class _UploadDocumentsState extends State<UploadDocuments> {
                             ),
                           ),
                         ),
-                      ): Container()
+                      ): Container(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.cloud_upload,
+                                  size: 40.0,
+                                  color: primaryColor,
+                                ),
+                                SizedBox(height: 20.0,),
+                                Text(
+                                  'Click Here to Upload Documents',
+                                  style: TextStyle(
+                                    color: primaryColor,
+                                    fontSize: 17.0,
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      )
                   ),
                 )
               ),

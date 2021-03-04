@@ -20,11 +20,13 @@ class SendMoneyToNonWalletApi {
       if (response.statusCode == 200 || response.statusCode == 400) {
         String reply = await response.transform(utf8.decoder).join();
         var body = json.decode(reply);
+        print(body);
         if(body['status']==1){
           return SendMoneyToNonWalletResponseModel.fromJson(body);
         }else{
           SendMoneyToNonWalletResponseModel responseModel = new SendMoneyToNonWalletResponseModel();
-          responseModel.status=0;
+          responseModel.status=body['status'];
+          responseModel.message = body['message'];
           return responseModel;
         }
 

@@ -61,9 +61,6 @@ class _LoginState extends State<Login> {
               ),
               SizedBox(height: 15.0,),
               TextFormField(
-                keyboardType:TextInputType.numberWithOptions(
-                  decimal: true,
-                ) ,
                 obscureText: true,
                 validator: (val) =>
                 val.isEmpty

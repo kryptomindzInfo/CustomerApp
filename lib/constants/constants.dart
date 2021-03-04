@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 var inputDecoration = InputDecoration(
+  contentPadding: EdgeInsets.symmetric(
+    horizontal: 12.0,
+    vertical: 6.0,
+  ),
   enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: primaryColor, width: 1.5)),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.circular(5.0),
   ),
   counter: Offstage(),
   labelText: '',
-  labelStyle: TextStyle(
-      color: Colors.grey,
-      fontSize: 14.0
-  ),
 );
 
 extension EmailValidator on String {

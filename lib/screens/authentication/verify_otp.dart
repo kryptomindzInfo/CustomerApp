@@ -48,7 +48,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 14),
                         child: Text(
-                          'Code Sent To 9691650252',
+                          'Code Sent To ${signUpData.mobile}',
                           style: TextStyle(
                             fontSize: 22,
                             color: Color(0xFF818181),

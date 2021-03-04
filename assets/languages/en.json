@@ -128,6 +128,17 @@
   "Select Receiver Name" : "Select Receiver Name",
   "Select Type" : "Select Type",
   "Identification Number" : "Identification Number",
-  "Country" : "Country"
+  "Country" : "Country",
+  "Receiver name can not be empty" : "Receiver name can not be empty",
+  "Name is Required" : "Name is Required",
+  "Family Name is required" : "Family Name is required",
+  "Address is Required" : "Address is Required",
+  "State is Required" : "State is Required",
+  "Zip Code Required" : "Zip Code Required",
+  "Country is Required" : "Country is Required",
+  "Enter Valid Email" : "Enter Valid Email",
+  "Doc Type is Required" : "Doc Type is Required",
+  "Invalid ID Number" : "Invalid ID Number"
+
 
 }

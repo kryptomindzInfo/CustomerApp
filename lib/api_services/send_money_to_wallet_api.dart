@@ -18,11 +18,13 @@ class SendMoneyToWalletApi {
       if (response.statusCode == 200 || response.statusCode == 400) {
         String reply = await response.transform(utf8.decoder).join();
         var body = json.decode(reply);
+        print(body);
         if(body['status']==1){
           return SendMoneyToWalletResponseModel.fromJson(body);
         }else{
           SendMoneyToWalletResponseModel responseModel = new SendMoneyToWalletResponseModel();
           responseModel.status=0;
+          responseModel.message = body['message'];
           return responseModel;
         }
 
