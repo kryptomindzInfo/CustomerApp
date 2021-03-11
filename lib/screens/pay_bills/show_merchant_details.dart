@@ -36,7 +36,7 @@ class _ShowMerchantDetailsState extends State<ShowMerchantDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar('Merchant details', context),
+      appBar: appBar('Merchant details', context,true),
       body: FutureBuilder<MerchantDetailsResponseModel>(
         future: _getMerchantDetails,
         builder: (context, snapshot) {
@@ -87,8 +87,13 @@ class _ShowMerchantDetailsState extends State<ShowMerchantDetails> {
                     ],
                   ),
                   Expanded(
-                    child: ListView.builder(
-                     itemCount: 5,
+                    child: snapshot.data.invoices.isEmpty?
+                    Center(
+                      child: Text(
+                        'No Bills Available'
+                      ),
+                    ):ListView.builder(
+                     itemCount: snapshot.data.invoices.length,
                      itemBuilder: (context,index){
                        return Padding(
                          padding: const EdgeInsets.all(10.0),

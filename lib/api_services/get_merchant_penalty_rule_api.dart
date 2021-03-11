@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:beyond_wallet/constants/constants.dart';
-import 'package:beyond_wallet/models/send_money_to_wallet_model.dart';
+import 'package:beyond_wallet/models/get_merchant_penalty_rule_model.dart';
 import 'dart:convert';
 
-class SendMoneyToWalletApi {
-  Future<SendMoneyToWalletResponseModel> sendMoneyToWallet(String  token,SendMoneyToWalletRequestModel requestModel) async {
-    String url = baseURL+"user/sendMoneyToWallet";
+class GetMerchantPenaltyRuleApi {
+  Future<GetMerchantPenaltyRuleResponseModel> getMerchantPenaltyRule(GetMerchantPenaltyRuleRequestModel requestModel, String  token) async {
+    String url = baseURL+"user/getMerchantPenaltyRule";
     try{
       HttpClient httpClient = new HttpClient();
       print(requestModel.toJson());
@@ -19,14 +19,7 @@ class SendMoneyToWalletApi {
         String reply = await response.transform(utf8.decoder).join();
         var body = json.decode(reply);
         print(body);
-        if(body['status']==1){
-          return SendMoneyToWalletResponseModel.fromJson(body);
-        }else{
-          SendMoneyToWalletResponseModel responseModel = new SendMoneyToWalletResponseModel();
-          responseModel.status=0;
-          responseModel.message = body['message'];
-          return responseModel;
-        }
+        return GetMerchantPenaltyRuleResponseModel.fromJson(body);
 
       } else {
         print('failed to load data');

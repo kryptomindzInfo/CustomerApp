@@ -34,7 +34,7 @@ class _LoginState extends State<Login> {
     var translate = DemoLocalization.of(context);
     var _localData = Provider.of<LocalData>(context);
     return isApiCallProgress?Loader():Scaffold(
-      appBar: appBar(translate.getTranslatedValue("Login"),context),
+      appBar: appBar(translate.getTranslatedValue("Login"),context,false),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Form(
@@ -152,7 +152,9 @@ class _LoginState extends State<Login> {
                 break;
               case 1:
                 getBalance.getBalanceController(response.token);
-                Get.offAll(()=>HomeScreen());
+                Get.offAll(()=>HomeScreen(
+                  balanceController: getBalance,
+                ));
                 break;
               case 2:
                 Get.to(()=>VerificationStatic(text:'Waiting for cashier approval'));

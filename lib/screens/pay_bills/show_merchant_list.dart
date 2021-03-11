@@ -30,7 +30,8 @@ class _ShowMerchantListState extends State<ShowMerchantList> {
     return Scaffold(
       appBar: appBar(
         'Merchant List',
-        context
+        context,
+        true
       ),
       body: FutureBuilder<GetMerchantListResponseModel>(
         future: _getMerchantList,

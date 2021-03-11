@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final getMerchantListResponseModel = getMerchantListResponseModelFromJson(jsonString);
+
 import 'dart:convert';
 
 GetMerchantListResponseModel getMerchantListResponseModelFromJson(String str) => GetMerchantListResponseModel.fromJson(json.decode(str));
@@ -84,7 +88,7 @@ class ListElement {
     billsRaised: json["bills_raised"],
     amountCollected: json["amount_collected"],
     amountCollectedDesc: json["amount_collected_desc"],
-    lastPaidAt: DateTime.parse(json["last_paid_at"]),
+    lastPaidAt: json["last_paid_at"] == null ? null : DateTime.parse(json["last_paid_at"]),
     amountDue: json["amount_due"].toDouble(),
     isPrivate: json["is_private"],
     id: json["_id"],
@@ -109,7 +113,7 @@ class ListElement {
     "bills_raised": billsRaised,
     "amount_collected": amountCollected,
     "amount_collected_desc": amountCollectedDesc,
-    "last_paid_at": lastPaidAt.toIso8601String(),
+    "last_paid_at": lastPaidAt == null ? null : lastPaidAt.toIso8601String(),
     "amount_due": amountDue,
     "is_private": isPrivate,
     "_id": id,

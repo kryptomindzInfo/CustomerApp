@@ -4,6 +4,7 @@ import 'package:beyond_wallet/models/send_money_to_non_wallet_model.dart';
 import 'package:beyond_wallet/models/sign_up_model.dart';
 import 'package:beyond_wallet/models/verify_otp_model.dart';
 import 'package:beyond_wallet/screens/authentication/login.dart';
+import 'package:beyond_wallet/screens/home/home_screen.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

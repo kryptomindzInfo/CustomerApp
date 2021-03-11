@@ -1,3 +1,4 @@
+import 'package:beyond_wallet/constants/constants.dart';
 import 'package:beyond_wallet/widgets/appBar.dart';
 import 'package:flutter/material.dart';
 class VerificationStatic extends StatefulWidget {
@@ -16,20 +17,37 @@ class _VerificationStaticState extends State<VerificationStatic> {
       appBar: appBar(
           'Verification Pending',
           context
+          ,false
       ),
       body: Container(
         child: Center(
-          child: ListTile(
-            leading: Icon(
-              Icons.pending,
-              size: 50.0,
-            ),
-            title: Text(
-                widget.text,
-              style: TextStyle(
-                fontSize: 21.0
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.pending,
+                  size: 50.0,
+                ),
+                title: Text(
+                    widget.text,
+                  style: TextStyle(
+                    fontSize: 21.0
+                  ),
+                ),
               ),
-            ),
+              SizedBox(height: 40.0,),
+              RaisedButton(
+                onPressed: (){},
+                color: primaryColor,
+                child: Text(
+                  'Check Verification',
+                  style: TextStyle(
+                    color: Colors.white
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),

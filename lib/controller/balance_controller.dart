@@ -6,6 +6,8 @@ class BalanceController extends ChangeNotifier{
   double balance = 0.0;
   bool loading = true;
   getBalanceController(String token)async{
+    loading = true;
+    notifyListeners();
     GetBalanceResponseModel responseModel =await GetBalanceApi().getBalance(token);
     balance = responseModel.balance;
     loading = false;

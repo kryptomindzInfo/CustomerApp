@@ -26,7 +26,7 @@ class _SignUpState extends State<SignUp> {
     var signUpData = Provider.of<SignUpRequestModel>(context);
     var translate = DemoLocalization.of(context);
     return isApiCallProgress?Loader():Scaffold(
-      appBar: appBar(translate.getTranslatedValue("Sign Up"),context),
+      appBar: appBar(translate.getTranslatedValue("Sign Up"),context,true),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),

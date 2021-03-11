@@ -57,7 +57,7 @@ class SuccessScreen extends StatelessWidget {
                 text: 'Done',
                 onClicked: (){
                   getBalance.getBalanceController(localData.token);
-                  Get.offAll(()=>HomeScreen());
+                  Get.offAll(()=>HomeScreen(balanceController: getBalance,));
                 },
               )
             ],

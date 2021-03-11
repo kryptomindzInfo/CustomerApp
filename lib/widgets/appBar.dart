@@ -2,7 +2,7 @@ import 'package:beyond_wallet/constants/constants.dart';
 import 'package:flutter/material.dart';
 
 
-Widget appBar(String text,BuildContext context){
+Widget appBar(String text,BuildContext context,bool goBack){
   return new PreferredSize(
     child: new Container(
       width: double.infinity,
@@ -11,17 +11,31 @@ Widget appBar(String text,BuildContext context){
       ),
       child: new Padding(
         padding: const EdgeInsets.only(
-            left: 30.0,
+            left: 10.0,
             top: 20.0,
             bottom: 20.0
         ),
-        child: new Text(
-          text,
-          style: new TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.w500,
-              color: Colors.white
-          ),
+        child: Row(
+          children: [
+            goBack?InkWell(
+              onTap:(){
+                Navigator.of(context).pop();
+              },
+              child: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              ),
+            ):Offstage(),
+            SizedBox(width: 10.0,),
+            new Text(
+              text,
+              style: new TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white
+              ),
+            ),
+          ],
         ),
       ),
       decoration: new BoxDecoration(

@@ -10,24 +10,36 @@ String sendMoneyToWalletRequestModelToJson(SendMoneyToWalletRequestModel data) =
 
 class SendMoneyToWalletRequestModel {
   SendMoneyToWalletRequestModel({
-    this.receiverMobile,
+    this.acceptedTerms,
+    this.interbank,
+    this.isInclusive,
     this.note,
+    this.receiverMobile,
     this.sendingAmount,
   });
 
-  String receiverMobile;
+  bool acceptedTerms;
+  bool interbank;
+  bool isInclusive;
   String note;
+  String receiverMobile;
   int sendingAmount;
 
   factory SendMoneyToWalletRequestModel.fromJson(Map<String, dynamic> json) => SendMoneyToWalletRequestModel(
-    receiverMobile: json["receiverMobile"],
+    acceptedTerms: json["acceptedTerms"],
+    interbank: json["interbank"],
+    isInclusive: json["isInclusive"],
     note: json["note"],
+    receiverMobile: json["receiverMobile"],
     sendingAmount: json["sending_amount"],
   );
 
   Map<String, dynamic> toJson() => {
-    "receiverMobile": receiverMobile,
+    "acceptedTerms": acceptedTerms,
+    "interbank": interbank,
+    "isInclusive": isInclusive,
     "note": note,
+    "receiverMobile": receiverMobile,
     "sending_amount": sendingAmount,
   };
 }

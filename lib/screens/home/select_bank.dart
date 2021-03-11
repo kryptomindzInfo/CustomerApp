@@ -39,6 +39,7 @@ class _SelectBankState extends State<SelectBank> {
       appBar: appBar(
         translate.getTranslatedValue('Choose Your Bank'),
         context
+          ,true
       ),
       body: FutureBuilder<GetBanksResponseModel>(
         future: _future,

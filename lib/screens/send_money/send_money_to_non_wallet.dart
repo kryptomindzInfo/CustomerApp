@@ -315,6 +315,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  textBaseline: TextBaseline.alphabetic,
                   children: <Widget>[
                     Container(
                       width: width*0.47,
@@ -482,7 +483,7 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
                 ),
                 SizedBox(height: 10.0,),
                 GreenButton(
-                  text: sendMoneyData.receiverIdentificationAmount==null?"Proceed":"Collect ${sendMoneyData.receiverIdentificationAmount+fees} Proceed",
+                  text: sendMoneyData.receiverIdentificationAmount==null?"Proceed":"Proceed XOF${sendMoneyData.receiverIdentificationAmount+fees}",
                   onClicked: ()async{
                       if(_formKey.currentState.validate()){
                         sendMoneyData.acceptedTerms = sendMoneyData.acceptedTerms??false;

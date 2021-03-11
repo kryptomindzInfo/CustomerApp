@@ -41,7 +41,7 @@ class _UploadDocumentsState extends State<UploadDocuments> {
     var translate = DemoLocalization.of(context);
     var height = MediaQuery.of(context).size.height;
     return isApiCallProgress?Loader():Scaffold(
-      appBar: appBar(translate.getTranslatedValue('Upload Documents'), context),
+      appBar: appBar(translate.getTranslatedValue('Upload Documents'), context,true),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -131,45 +131,49 @@ class _UploadDocumentsState extends State<UploadDocuments> {
             ):GreenButton(
               text: translate.getTranslatedValue('Upload'),
               onClicked: () async {
-                  setState(() {
-                    isDocsUploadProgress = true;
-                  });
-                  UploadDocsResponseModel response = await UploadDocumentsApi().uploadDocuments(document);
-                  if(response!=null){
-                    Fluttertoast.showToast(msg: response.message);
-                    if(response.status==1){
-                      UploadDocsHashRequestModel requestModel = new UploadDocsHashRequestModel();
-                      Hashes hsh = new Hashes();
-                      hsh.name = document.path.split("/").last;
-                      hsh.hash = response.hash;
-                      hsh.type = document.path.split(".").last;
-                      List<Hashes> hashes = [hsh];
-                      requestModel.hashes=hashes;
-                      UploadDocsHashResponseModel uploadDocsHashResponse =await UploadDocsHashApi().uploadDocsHash(requestModel, localData.token);
-                      setState(() {
-                        isDocsUploadProgress = false;
-                      });
-                      if(uploadDocsHashResponse!=null){
-                        Fluttertoast.showToast(msg: uploadDocsHashResponse.message);
-                        if(uploadDocsHashResponse.status==1){
-                          Get.offAll(()=>VerificationStatic(
-                            text:'Documents are being verified by cashier',
-                          ));
+                  if(document!=null){
+                    setState(() {
+                      isDocsUploadProgress = true;
+                    });
+                    UploadDocsResponseModel response = await UploadDocumentsApi().uploadDocuments(document);
+                    if(response!=null){
+                      Fluttertoast.showToast(msg: response.message);
+                      if(response.status==1){
+                        UploadDocsHashRequestModel requestModel = new UploadDocsHashRequestModel();
+                        Hashes hsh = new Hashes();
+                        hsh.name = document.path.split("/").last;
+                        hsh.hash = response.hash;
+                        hsh.type = document.path.split(".").last;
+                        List<Hashes> hashes = [hsh];
+                        requestModel.hashes=hashes;
+                        UploadDocsHashResponseModel uploadDocsHashResponse =await UploadDocsHashApi().uploadDocsHash(requestModel, localData.token);
+                        setState(() {
+                          isDocsUploadProgress = false;
+                        });
+                        if(uploadDocsHashResponse!=null){
+                          Fluttertoast.showToast(msg: uploadDocsHashResponse.message);
+                          if(uploadDocsHashResponse.status==1){
+                            Get.offAll(()=>VerificationStatic(
+                              text:'Pending approval from cashier',
+                            ));
+                          }
+                        }else{
+                          Fluttertoast.showToast(msg: 'Something went wrong');
                         }
-                      }else{
-                        Fluttertoast.showToast(msg: 'Something went wrong');
-                      }
 
+                      }else{
+                        setState(() {
+                          isDocsUploadProgress = false;
+                        });
+                      }
                     }else{
                       setState(() {
                         isDocsUploadProgress = false;
                       });
+                      Fluttertoast.showToast(msg: 'Something went wrong');
                     }
                   }else{
-                    setState(() {
-                      isDocsUploadProgress = false;
-                    });
-                    Fluttertoast.showToast(msg: 'Something went wrong');
+                    Fluttertoast.showToast(msg: 'Please Select Document First');
                   }
               },
             ),

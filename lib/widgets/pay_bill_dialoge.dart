@@ -2,6 +2,7 @@ import 'package:beyond_wallet/api_services/get_invoice_by_mobile_api.dart';
 import 'package:beyond_wallet/constants/constants.dart';
 import 'package:beyond_wallet/models/get_invoice_by_mobile_model.dart';
 import 'package:beyond_wallet/screens/pay_bills/show_invoices.dart';
+import 'package:beyond_wallet/screens/pay_bills/show_invoices_by_cc.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -18,7 +19,7 @@ class PayBillDialoge extends StatefulWidget {
 
 class _PayBillDialogeState extends State<PayBillDialoge> {
   List searchBy = ['Mobile Number','Bill Number','Customer Code'];
-  String type;
+  String type='Mobile Number';
   String number;
   final _formKey = GlobalKey<FormState>();
   @override
@@ -50,6 +51,7 @@ class _PayBillDialogeState extends State<PayBillDialoge> {
                   decoration: inputDecoration.copyWith(
                       labelText:'Type'
                   ),
+                  value: 'Mobile Number',
                   items:searchBy.map((doc){
                     return DropdownMenuItem(
                       value: doc,
@@ -87,11 +89,20 @@ class _PayBillDialogeState extends State<PayBillDialoge> {
                 RaisedButton(
                   onPressed: (){
                     if(_formKey.currentState.validate()){
-                      Get.to(()=>ShowInvoices(
-                        merchantId: widget.merchantID,
-                        number: number,
-                        type: type,
-                      ));
+                      Navigator.pop(context);
+                      if(type=='Mobile Number'){
+                        Get.to(()=>ShowInvoices(
+                          merchantId: widget.merchantID,
+                          number: number,
+                          type: type,
+                        ));
+                      }else if(type == 'Customer Code'){
+                        Get.to(()=>ShowInvoicesByCc(
+                          merchantId: widget.merchantID,
+                          number: number,
+                          type: type,
+                        ));
+                      }
                     }
 
                   },

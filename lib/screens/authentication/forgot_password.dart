@@ -13,7 +13,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Widget build(BuildContext context) {
     var translate = DemoLocalization.of(context);
     return Scaffold(
-      appBar: appBar(translate.getTranslatedValue('Forgot Password'), context),
+      appBar: appBar(translate.getTranslatedValue('Forgot Password'), context,true),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

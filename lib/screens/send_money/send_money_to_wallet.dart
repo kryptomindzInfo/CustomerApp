@@ -175,7 +175,7 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
                   ),
                   SizedBox(height: 10.0,),
                   Text(
-                    'Wallet Balance: XOF $balance',
+                    'Wallet Balance: XOF ${balance-fees}',
                     style: TextStyle(
                         color: primaryColor,
                         fontSize: 17.0
@@ -183,7 +183,7 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
                   ),
                   SizedBox(height: 10.0,),
                   Text(
-                    'XOF $fees will be charged as fee and XOF 0 will be sent to the receiver',
+                    'XOF $fees will be charged as fee and XOF $amount will be sent to the receiver',
                     style: TextStyle(
                         color: primaryColor,
                         fontSize: 17.0
@@ -241,7 +241,7 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
                   ),
                   Spacer(),
                   GreenButton(
-                      text: amount=='0.0'?"Proceed":"Collect ${double.parse(amount)+fees} Proceed",
+                      text: amount=='0.0'?"Proceed":"Proceed XOF${double.parse(amount)+fees}",
                       onClicked: () async {
                         if(_formKey.currentState.validate()){
                           if(agreeTandC){
@@ -250,6 +250,9 @@ class _SendMoneyToWalletState extends State<SendMoneyToWallet> {
                                 requestModel.note = note;
                                 requestModel.receiverMobile = mobile;
                                 requestModel.sendingAmount = int.parse(amount);
+                                requestModel.acceptedTerms= agreeTandC;
+                                requestModel.interbank=false;
+                                requestModel.isInclusive = false;
                                   setState(() {
                                     isApiCallProgress = true;
                                   });

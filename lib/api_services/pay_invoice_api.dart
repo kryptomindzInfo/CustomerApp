@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:beyond_wallet/constants/constants.dart';
-import 'package:beyond_wallet/models/send_money_to_wallet_model.dart';
 import 'dart:convert';
+import 'package:beyond_wallet/models/pay_invoice_model.dart';
 
-class SendMoneyToWalletApi {
-  Future<SendMoneyToWalletResponseModel> sendMoneyToWallet(String  token,SendMoneyToWalletRequestModel requestModel) async {
-    String url = baseURL+"user/sendMoneyToWallet";
+class PayInvoiceApi {
+  Future<PayInvoiceResponseModel> payInvoice(String  token,PayInvoiceRequestModel requestModel) async {
+    String url = baseURL+"user/payInvoice";
     try{
       HttpClient httpClient = new HttpClient();
       print(requestModel.toJson());
@@ -20,10 +20,10 @@ class SendMoneyToWalletApi {
         var body = json.decode(reply);
         print(body);
         if(body['status']==1){
-          return SendMoneyToWalletResponseModel.fromJson(body);
+          return PayInvoiceResponseModel.fromJson(body);
         }else{
-          SendMoneyToWalletResponseModel responseModel = new SendMoneyToWalletResponseModel();
-          responseModel.status=0;
+          PayInvoiceResponseModel responseModel = new PayInvoiceResponseModel();
+          responseModel.status=body['status'];
           responseModel.message = body['message'];
           return responseModel;
         }
