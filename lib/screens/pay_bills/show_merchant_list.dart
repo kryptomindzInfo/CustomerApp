@@ -3,6 +3,7 @@ import 'package:beyond_wallet/constants/constants.dart';
 import 'package:beyond_wallet/models/get_marchent_list_model.dart';
 import 'package:beyond_wallet/screens/pay_bills/show_merchant_details.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
+import 'package:beyond_wallet/utils/network_util.dart';
 import 'package:beyond_wallet/widgets/Loader.dart';
 import 'package:beyond_wallet/widgets/appBar.dart';
 import 'package:beyond_wallet/widgets/networkImage.dart';
@@ -44,9 +45,12 @@ class _ShowMerchantListState extends State<ShowMerchantList> {
                   children: [
                     Card(
                       child: ListTile(
-                        onTap: ()=>Get.to(()=>ShowMerchantDetails(
-                          merchantID: snapshot.data.list[index].id,
-                        )),
+                        onTap: () async {
+                          Map data =await NetworkUtil.httpPostComplex({'merchant_id':snapshot.data.list[index].id}, "user/addMerchant",context);
+                          if(data!=null){
+                            Navigator.pop(context);
+                          }
+                          },
                         leading: networkImage(snapshot.data.list[index].logo),
                         title: Text(
                           snapshot.data.list[index].name

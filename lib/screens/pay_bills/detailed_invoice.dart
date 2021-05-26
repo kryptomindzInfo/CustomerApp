@@ -17,7 +17,7 @@ import 'package:beyond_wallet/models/pay_invoice_model.dart';
 import 'package:beyond_wallet/api_services/pay_invoice_api.dart';
 class InvoiceDetails extends StatefulWidget {
 
-  var invoices;
+  final Invoices invoices;
   InvoiceDetails({this.invoices});
 
   @override
@@ -56,6 +56,7 @@ class _InvoiceDetailsState extends State<InvoiceDetails> {
 
   @override
   Widget build(BuildContext context) {
+    print('heb');
     return isApiCallProgress?Loader():Scaffold(
       appBar: appBar(
       'Pay ${widget.invoices.name} Bills', context, true),
@@ -151,6 +152,7 @@ class _InvoiceDetailsState extends State<InvoiceDetails> {
                           itemBuilder: (context,index) {
                             return Card(
                               child: Container(
+                                padding: EdgeInsets.all(10.0),
                                 height: 200,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,6 +245,7 @@ class _InvoiceDetailsState extends State<InvoiceDetails> {
                             );
                           }
                       ),
+                      SizedBox(height: 30.0,),
                       RichText(
                         text: TextSpan(
                             children: [
@@ -312,8 +315,9 @@ class _InvoiceDetailsState extends State<InvoiceDetails> {
                             Fluttertoast.showToast(msg: payInvoiceResponse.message);
                             if(payInvoiceResponse.status==1){
                               Get.to(()=>SuccessScreen(
-                                balance: 1,
                                 message: payInvoiceResponse.message,
+                                transactionId: payInvoiceResponse.transactionNumber,
+                                balance: (fee+penalty+totalTax+totalAmount).toString(),
                               ));
                             }
                           }else{
@@ -345,7 +349,7 @@ class _InvoiceDetailsState extends State<InvoiceDetails> {
         text: text,
         style: TextStyle(
             color: Colors.black,
-            fontSize: 18.0
+            fontSize: 14.0
         )
     );
   }
@@ -354,7 +358,7 @@ class _InvoiceDetailsState extends State<InvoiceDetails> {
       text: text,
       style: TextStyle(
           color: primaryColor,
-          fontSize: 18.0,
+          fontSize: 14.0,
           fontWeight: FontWeight.bold
       ),
     );

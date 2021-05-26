@@ -61,14 +61,17 @@ class PayInvoiceResponseModel {
   PayInvoiceResponseModel({
     this.status,
     this.message,
+    this.transactionNumber
   });
 
   int status;
   String message;
+  String transactionNumber;
 
   factory PayInvoiceResponseModel.fromJson(Map<String, dynamic> json) => PayInvoiceResponseModel(
     status: json["status"],
     message: json["message"],
+    transactionNumber: json['transaction_code']??''
   );
 
   Map<String, dynamic> toJson() => {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 var inputDecoration = InputDecoration(
   contentPadding: EdgeInsets.symmetric(
@@ -26,5 +27,17 @@ final endColor = Color(0xff166D3B);
 final primaryColor = Color(0xff417505);
 final balanceTileColor = Colors.deepOrange;
 
-const String imageBaseURL = "http://91d90ac373dc.sn.mynetname.net:30301/api/uploads/";
-const String baseURL = "http://91d90ac373dc.sn.mynetname.net:30301/api/";
+const String imageBaseURL = "http://91d90ac373dc.sn.mynetname.net:40301/api/uploads/";
+const String baseURL = "http://91d90ac373dc.sn.mynetname.net:40301/api/";
+const String docBaseUrl = "http://91d90ac373dc.sn.mynetname.net:40880/ipfs/";
+
+String getDateForSuccessScreen(DateTime dateTime){
+  var outputFormat = DateFormat('dd/MM/yyyy hh:mm a');
+  String outputDate = outputFormat.format(dateTime);
+  return outputDate;
+}
+String convertDateTime(DateTime datetime){
+  var outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
+  String outputDate = outputFormat.format(datetime.add(Duration(hours: 5,minutes: 30)).toLocal());
+  return outputDate;
+}

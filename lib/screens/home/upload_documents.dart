@@ -72,7 +72,7 @@ class _UploadDocumentsState extends State<UploadDocuments> {
                 child: InkWell(
                   onTap: () async {
                     File tempFile = await FilePicker.getFile(
-                        type:FileType.custom, allowedExtensions: ['jpg', 'pdf', 'doc']);
+                        type:FileType.custom, allowedExtensions: ['jpg', 'pdf', 'doc','png']);
                     var size = await tempFile.length();
                     if(size > 4242880){
                       Fluttertoast.showToast(msg: 'File size more than 5mb');
@@ -178,47 +178,47 @@ class _UploadDocumentsState extends State<UploadDocuments> {
               },
             ),
             SizedBox(height: 30.0,),
-            InkWell(
-              onTap: () async {
-                setState(() {
-                  isApiCallProgress= true;
-                });
-                SkipUploadDocsResponseModel response =await SkipUploadDocsApi().skipUploadDocs(localData.token);
-                if(response!=null){
-                  Fluttertoast.showToast(msg: response.message);
-                  if(response.status==1){
-                    Get.to(()=>VerificationStatic());
-                  }else{
-                    setState(() {
-                      isApiCallProgress= false;
-                    });
-                  }
-                }else{
-                  setState(() {
-                    isApiCallProgress= false;
-                  });
-                  Fluttertoast.showToast(msg: 'Something went wrong');
-                }
-
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Skip',
-                    style: TextStyle(
-                      fontSize: 25.0,
-                      color: primaryColor
-                    ),
-                  ),
-                  SizedBox(width: 10.0,),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    color: primaryColor,
-                  )
-                ],
-              ),
-            )
+            // InkWell(
+            //   onTap: () async {
+            //     setState(() {
+            //       isApiCallProgress= true;
+            //     });
+            //     SkipUploadDocsResponseModel response =await SkipUploadDocsApi().skipUploadDocs(localData.token);
+            //     if(response!=null){
+            //       Fluttertoast.showToast(msg: response.message);
+            //       if(response.status==1){
+            //         Get.to(()=>VerificationStatic());
+            //       }else{
+            //         setState(() {
+            //           isApiCallProgress= false;
+            //         });
+            //       }
+            //     }else{
+            //       setState(() {
+            //         isApiCallProgress= false;
+            //       });
+            //       Fluttertoast.showToast(msg: 'Something went wrong');
+            //     }
+            //
+            //   },
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Text(
+            //         'Skip',
+            //         style: TextStyle(
+            //           fontSize: 25.0,
+            //           color: primaryColor
+            //         ),
+            //       ),
+            //       SizedBox(width: 10.0,),
+            //       Icon(
+            //         Icons.arrow_forward_ios,
+            //         color: primaryColor,
+            //       )
+            //     ],
+            //   ),
+            // )
           ],
         ),
       ),

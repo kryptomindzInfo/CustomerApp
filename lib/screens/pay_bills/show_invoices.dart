@@ -11,9 +11,9 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:beyond_wallet/screens/pay_bills/detailed_invoice.dart';
 class ShowInvoices extends StatefulWidget {
-  String merchantId;
-  String type;
-  String number;
+  final String merchantId;
+  final String type;
+  final String number;
 
   ShowInvoices({this.merchantId, this.type, this.number});
 

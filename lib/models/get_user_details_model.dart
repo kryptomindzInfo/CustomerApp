@@ -24,7 +24,7 @@ class GetUserDetailsResponseModel {
   Map<String, dynamic> toJson() => {
     "status": status,
     "message": message,
-    "user": user.toJson(),
+    "user":user!=null?user.toJson():null,
   };
 }
 

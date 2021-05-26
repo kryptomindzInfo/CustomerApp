@@ -28,20 +28,31 @@ class _LoginState extends State<Login> {
   String password;
   bool isApiCallProgress = false;
 
+
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     var translate = DemoLocalization.of(context);
     var _localData = Provider.of<LocalData>(context);
     return isApiCallProgress?Loader():Scaffold(
-      appBar: appBar(translate.getTranslatedValue("Login"),context,false),
+      appBar: appBar('Beyond Wallet',context,false),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              Text(
+                'Login',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: primaryColor
+                ),
+              ),
+              SizedBox(height: 20.0,),
               TextFormField(
                 maxLength: 15,
                 keyboardType:TextInputType.numberWithOptions(
@@ -151,6 +162,7 @@ class _LoginState extends State<Login> {
                 Get.to(()=>SelectBank());
                 break;
               case 1:
+                Get.put(response);
                 getBalance.getBalanceController(response.token);
                 Get.offAll(()=>HomeScreen(
                   balanceController: getBalance,

@@ -113,15 +113,18 @@ class SendMoneyToNonWalletResponseModel {
     this.status,
     this.message,
     this.balance,
+    this.transactionId
   });
 
   int status;
   String message;
+  String transactionId;
   double balance;
 
   factory SendMoneyToNonWalletResponseModel.fromJson(Map<String, dynamic> json) => SendMoneyToNonWalletResponseModel(
     status: json["status"],
     message: json["message"],
+    transactionId: json["transaction_code"],
     balance: json["balance"].toDouble(),
   );
 

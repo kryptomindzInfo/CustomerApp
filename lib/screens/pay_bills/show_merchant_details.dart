@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:beyond_wallet/api_services/get_merchant_details_api.dart';
 import 'package:beyond_wallet/constants/constants.dart';
+import 'package:beyond_wallet/models/get_invoice_by_mobile_model.dart';
 import 'package:beyond_wallet/models/merchant_details_model.dart';
+import 'package:beyond_wallet/screens/pay_bills/detailed_invoice.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
 import 'package:beyond_wallet/widgets/Loader.dart';
 import 'package:beyond_wallet/widgets/appBar.dart';
@@ -10,6 +12,7 @@ import 'package:beyond_wallet/widgets/networkImage.dart';
 import 'package:beyond_wallet/widgets/pay_bill_dialoge.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 class ShowMerchantDetails extends StatefulWidget {
   final String merchantID;
@@ -41,6 +44,9 @@ class _ShowMerchantDetailsState extends State<ShowMerchantDetails> {
         future: _getMerchantDetails,
         builder: (context, snapshot) {
           if(snapshot.hasData){
+            snapshot.data.invoices.removeWhere((element){
+              return element['paid']==1;
+            });
             return Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -62,7 +68,7 @@ class _ShowMerchantDetailsState extends State<ShowMerchantDetails> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Bills List',
+                        'My Bills List',
                         style: TextStyle(
                           fontSize: 25.0
                         ),
@@ -95,76 +101,89 @@ class _ShowMerchantDetailsState extends State<ShowMerchantDetails> {
                     ):ListView.builder(
                      itemCount: snapshot.data.invoices.length,
                      itemBuilder: (context,index){
-                       return Padding(
-                         padding: const EdgeInsets.all(10.0),
-                         child: Card(
-                           child: Container(
-                             height: 100,
-                             child: Row(
-                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                               children: <Widget>[
-                                 Column(
-                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                   children: [
-                                     Text(
-                                       'Name',
-                                       style: TextStyle(
-                                         fontSize:20.0
+                       return Column(
+                         children: [
+                           SizedBox(height: 5.0,),
+                           InkWell(
+                             onTap:(){
+                               Invoices invoices = Invoices.fromJson(snapshot.data.invoices[index]);
+                               Get.to(()=>InvoiceDetails(
+                                 invoices: invoices,
+                               ));
+                              },
+                             child: Padding(
+                               padding: const EdgeInsets.all(10.0),
+                               child: Card(
+                                 child: Container(
+                                   height: 100,
+                                   child: Row(
+                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                     children: <Widget>[
+                                       Column(
+                                         crossAxisAlignment: CrossAxisAlignment.start,
+                                         children: [
+                                           Text(
+                                             snapshot.data.invoices[index]['name'],
+                                             style: TextStyle(
+                                               fontSize:20.0
+                                             ),
+                                           ),
+                                           SizedBox(height: 10.0,),
+                                           Text(
+                                             snapshot.data.invoices[index]['number'],
+                                             style: TextStyle(
+                                                 fontSize: 13.0
+                                             ),
+                                           ),
+                                           SizedBox(height: 10.0,),
+                                           Text(
+                                             'Due Date: ${snapshot.data.invoices[index]['due_date']}',
+                                             style: TextStyle(
+                                                 fontSize: 17.0
+                                             ),
+                                           ),
+                                         ],
                                        ),
-                                     ),
-                                     SizedBox(height: 10.0,),
-                                     Text(
-                                       '7869131052',
-                                       style: TextStyle(
-                                           fontSize: 15.0
-                                       ),
-                                     ),
-                                     SizedBox(height: 10.0,),
-                                     Text(
-                                       'Due Date: 26/1/21',
-                                       style: TextStyle(
-                                           fontSize: 17.0
-                                       ),
-                                     ),
-                                   ],
+                                       Column(
+                                         mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                         crossAxisAlignment: CrossAxisAlignment.end,
+                                         children: [
+                                           Text(
+                                             'Penalty ${snapshot.data.invoices[index]['penalty']??0}',
+                                             style: TextStyle(
+                                                 fontSize: 15.0
+                                             ),
+                                           ),
+                                           RichText(
+                                             text: TextSpan(
+                                                 children: [
+                                                   TextSpan(
+                                                       text:'Amount: ',
+                                                       style: TextStyle(
+                                                         fontSize: 16.0,
+                                                           color: Colors.black54
+                                                       )
+                                                   ),
+                                                   TextSpan(
+                                                       text: snapshot.data.invoices[index]['amount'].toString(),
+                                                       style: TextStyle(
+                                                           color: primaryColor,
+                                                           fontSize: 20.0,
+                                                           fontWeight: FontWeight.bold
+                                                       ),
+                                                   ),
+                                                 ]
+                                             ),
+                                           )
+                                         ],
+                                       )
+                                     ],
+                                   ),
                                  ),
-                                 Column(
-                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                   crossAxisAlignment: CrossAxisAlignment.end,
-                                   children: [
-                                     Text(
-                                       'Bill No. 12',
-                                       style: TextStyle(
-                                           fontSize: 15.0
-                                       ),
-                                     ),
-                                     RichText(
-                                       text: TextSpan(
-                                           children: [
-                                             TextSpan(
-                                                 text:'Amount: ',
-                                                 style: TextStyle(
-                                                   fontSize: 16.0,
-                                                     color: Colors.black54
-                                                 )
-                                             ),
-                                             TextSpan(
-                                                 text: '60.0',
-                                                 style: TextStyle(
-                                                     color: primaryColor,
-                                                     fontSize: 20.0,
-                                                     fontWeight: FontWeight.bold
-                                                 ),
-                                             ),
-                                           ]
-                                       ),
-                                     )
-                                   ],
-                                 )
-                               ],
+                               ),
                              ),
                            ),
-                         ),
+                         ],
                        );
                      },
                     ),

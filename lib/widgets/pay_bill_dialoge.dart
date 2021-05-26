@@ -1,6 +1,7 @@
 import 'package:beyond_wallet/api_services/get_invoice_by_mobile_api.dart';
 import 'package:beyond_wallet/constants/constants.dart';
 import 'package:beyond_wallet/models/get_invoice_by_mobile_model.dart';
+import 'package:beyond_wallet/screens/pay_bills/show_invoice_by_bills.dart';
 import 'package:beyond_wallet/screens/pay_bills/show_invoices.dart';
 import 'package:beyond_wallet/screens/pay_bills/show_invoices_by_cc.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
@@ -68,10 +69,6 @@ class _PayBillDialogeState extends State<PayBillDialoge> {
                 ),
                 SizedBox(height: 20.0,),
                 TextFormField(
-                  maxLength: 10,
-                  keyboardType:TextInputType.numberWithOptions(
-                    decimal: true,
-                  ) ,
                   validator: (val) =>
                   val.isEmpty
                       ? 'Required'
@@ -98,6 +95,12 @@ class _PayBillDialogeState extends State<PayBillDialoge> {
                         ));
                       }else if(type == 'Customer Code'){
                         Get.to(()=>ShowInvoicesByCc(
+                          merchantId: widget.merchantID,
+                          number: number,
+                          type: type,
+                        ));
+                      }else{
+                        Get.to(()=>ShowInvoiceByBills(
                           merchantId: widget.merchantID,
                           number: number,
                           type: type,

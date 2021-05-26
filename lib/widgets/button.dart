@@ -11,7 +11,7 @@ class GreenButton extends StatelessWidget {
       onTap: onClicked,
       child: Container(
         width: double.infinity,
-        height: 60.0,
+        height: 50.0,
         decoration: BoxDecoration(
             color: primaryColor,
             borderRadius: BorderRadius.circular(5.0)

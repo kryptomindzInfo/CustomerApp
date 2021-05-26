@@ -1,58 +1,55 @@
 // To parse this JSON data, do
 //
-//     final getInvoiceByCcRequestModel = getInvoiceByCcRequestModelFromJson(jsonString);
+//     final getInvoiceByBillRequestModel = getInvoiceByBillRequestModelFromJson(jsonString);
 
 import 'dart:convert';
 
-GetInvoiceByCcRequestModel getInvoiceByCcRequestModelFromJson(String str) => GetInvoiceByCcRequestModel.fromJson(json.decode(str));
+GetInvoiceByBillRequestModel getInvoiceByBillRequestModelFromJson(String str) => GetInvoiceByBillRequestModel.fromJson(json.decode(str));
 
-String getInvoiceByCcRequestModelToJson(GetInvoiceByCcRequestModel data) => json.encode(data.toJson());
+String getInvoiceByBillRequestModelToJson(GetInvoiceByBillRequestModel data) => json.encode(data.toJson());
 
-class GetInvoiceByCcRequestModel {
-  GetInvoiceByCcRequestModel({
-    this.customerCode,
+class GetInvoiceByBillRequestModel {
+  GetInvoiceByBillRequestModel({
+    this.number,
     this.merchantId,
   });
 
-  String customerCode;
+  String number;
   String merchantId;
 
-  factory GetInvoiceByCcRequestModel.fromJson(Map<String, dynamic> json) => GetInvoiceByCcRequestModel(
-    customerCode: json["customer_code"],
+  factory GetInvoiceByBillRequestModel.fromJson(Map<String, dynamic> json) => GetInvoiceByBillRequestModel(
+    number: json["number"],
     merchantId: json["merchant_id"],
   );
 
   Map<String, dynamic> toJson() => {
-    "customer_code": customerCode,
+    "number": number,
     "merchant_id": merchantId,
   };
 }
 
-
-
-
 // To parse this JSON data, do
 //
-//     final getInvoiceByCcResponseModel = getInvoiceByCcResponseModelFromJson(jsonString);
+//     final getInvoiceByBillResponseModel = getInvoiceByBillResponseModelFromJson(jsonString);
 
 
 
-GetInvoiceByCcResponseModel getInvoiceByCcResponseModelFromJson(String str) => GetInvoiceByCcResponseModel.fromJson(json.decode(str));
+GetInvoiceByBillResponseModel getInvoiceByBillResponseModelFromJson(String str) => GetInvoiceByBillResponseModel.fromJson(json.decode(str));
 
-String getInvoiceByCcResponseModelToJson(GetInvoiceByCcResponseModel data) => json.encode(data.toJson());
+String getInvoiceByBillResponseModelToJson(GetInvoiceByBillResponseModel data) => json.encode(data.toJson());
 
-class GetInvoiceByCcResponseModel {
-  GetInvoiceByCcResponseModel({
+class GetInvoiceByBillResponseModel {
+  GetInvoiceByBillResponseModel({
     this.status,
     this.invoice,
   });
 
   int status;
-  List<CcInvoice> invoice;
+  List<BillInvoice> invoice;
 
-  factory GetInvoiceByCcResponseModel.fromJson(Map<String, dynamic> json) => GetInvoiceByCcResponseModel(
+  factory GetInvoiceByBillResponseModel.fromJson(Map<String, dynamic> json) => GetInvoiceByBillResponseModel(
     status: json["status"],
-    invoice: List<CcInvoice>.from(json["invoice"].map((x) => CcInvoice.fromJson(x))),
+    invoice: List<BillInvoice>.from(json["invoice"].map((x) => BillInvoice.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -61,8 +58,8 @@ class GetInvoiceByCcResponseModel {
   };
 }
 
-class CcInvoice {
-  CcInvoice({
+class BillInvoice {
+  BillInvoice({
     this.billPeriod,
     this.paid,
     this.paidDesc,
@@ -80,6 +77,7 @@ class CcInvoice {
     this.amount,
     this.merchantId,
     this.billDate,
+    this.branchId,
     this.dueDate,
     this.description,
     this.mobile,
@@ -89,10 +87,6 @@ class CcInvoice {
     this.customerCode,
     this.term,
     this.v,
-    this.paidBy,
-    this.payerId,
-    this.penalty,
-    this.transactionCode,
   });
 
   BillPeriod billPeriod;
@@ -112,6 +106,7 @@ class CcInvoice {
   int amount;
   String merchantId;
   String billDate;
+  String branchId;
   String dueDate;
   String description;
   String mobile;
@@ -121,12 +116,8 @@ class CcInvoice {
   String customerCode;
   int term;
   int v;
-  String paidBy;
-  String payerId;
-  int penalty;
-  String transactionCode;
 
-  factory CcInvoice.fromJson(Map<String, dynamic> json) => CcInvoice(
+  factory BillInvoice.fromJson(Map<String, dynamic> json) => BillInvoice(
     billPeriod: BillPeriod.fromJson(json["bill_period"]),
     paid: json["paid"],
     paidDesc: json["paid_desc"],
@@ -144,6 +135,7 @@ class CcInvoice {
     amount: json["amount"],
     merchantId: json["merchant_id"],
     billDate: json["bill_date"],
+    branchId: json["branch_id"],
     dueDate: json["due_date"],
     description: json["description"],
     mobile: json["mobile"],
@@ -153,10 +145,6 @@ class CcInvoice {
     customerCode: json["customer_code"],
     term: json["term"],
     v: json["__v"],
-    paidBy: json["paid_by"],
-    payerId: json["payer_id"],
-    penalty: json["penalty"],
-    transactionCode: json["transaction_code"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -177,6 +165,7 @@ class CcInvoice {
     "amount": amount,
     "merchant_id": merchantId,
     "bill_date": billDate,
+    "branch_id": branchId,
     "due_date": dueDate,
     "description": description,
     "mobile": mobile,
@@ -186,10 +175,6 @@ class CcInvoice {
     "customer_code": customerCode,
     "term": term,
     "__v": v,
-    "paid_by": paidBy,
-    "payer_id": payerId,
-    "penalty": penalty,
-    "transaction_code": transactionCode,
   };
 }
 

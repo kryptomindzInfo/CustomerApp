@@ -13,6 +13,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 class SendMoneyToNonWallet extends StatefulWidget {
+  final Map contact;
+
+  const SendMoneyToNonWallet({Key key, this.contact}) : super(key: key);
   @override
   _SendMoneyToNonWalletState createState() => _SendMoneyToNonWalletState();
 }
@@ -34,10 +37,17 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    sendMoneyData = Provider.of<SendMoneyToNonWalletRequestModel>(context,listen: false);
+    sendMoneyData = SendMoneyToNonWalletRequestModel();
     checkFeeRequestModel = new CheckFeeRequestModel();
     sendMoneyData.receiverIdentificationCountry = 'Senegal';
     sendMoneyData.receiverCountry = 'Senegal';
+    if(widget.contact!=null){
+      sendMoneyData.receiverMobile = widget.contact['mobile'];
+      sendMoneyData.receiverGivenName = widget.contact['name'];
+      sendMoneyData.receiverFamilyName = widget.contact['lastName'];
+      sendMoneyData.receiverEmail = widget.contact['email'];
+      sendMoneyData.receiverCountry = widget.contact['country'];
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -59,462 +69,471 @@ class _SendMoneyToNonWalletState extends State<SendMoneyToNonWallet> {
             fees =snapshot.data.fee;
           }
           return Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  maxLength: 10,
-                  keyboardType:TextInputType.numberWithOptions(
-                    decimal: true,
-                  ) ,
-                  validator: (val) =>
-                  val.isEmpty || val.length<10
-                      ? translate.getTranslatedValue('Invalid Mobile Number')
-                      : null,
-                  onChanged: (val) {
-                    sendMoneyData.receiverMobile= val;
-                  },
-                  decoration: inputDecoration.copyWith(
-                    labelText: translate.getTranslatedValue('Mobile Number'),
+            padding: const EdgeInsets.symmetric(horizontal:10.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 20.0,),
+                  TextFormField(
+                    initialValue: sendMoneyData.receiverMobile,
+                    maxLength: 10,
+                    keyboardType:TextInputType.numberWithOptions(
+                      decimal: true,
+                    ) ,
+                    validator: (val) =>
+                    val.isEmpty || val.length<10
+                        ? translate.getTranslatedValue('Invalid Mobile Number')
+                        : null,
+                    onChanged: (val) {
+                      sendMoneyData.receiverMobile= val;
+                    },
+                    decoration: inputDecoration.copyWith(
+                      labelText: translate.getTranslatedValue('Mobile Number'),
+                    ),
                   ),
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Container(
-                      width: width*0.47,
-                      child: TextFormField(
-                        validator: (val) =>
-                        val.isEmpty
-                            ? translate.getTranslatedValue('Name is Required')
-                            : null,
-                        onChanged: (val) {
-                          sendMoneyData.receiverGivenName = val;
-                        },
-                        decoration: inputDecoration.copyWith(
-                          labelText: translate.getTranslatedValue('Given Name'),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: width*0.47,
-                      child: TextFormField(
-                        validator: (val) =>
-                        val.isEmpty
-                            ? translate.getTranslatedValue('Family Name is required')
-                            : null,
-                        onChanged: (val) {
-                          sendMoneyData.receiverFamilyName = val;
-                        },
-                        decoration: inputDecoration.copyWith(
-                          labelText: translate.getTranslatedValue('Family Name'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                TextFormField(
-                  validator: (val) =>
-                  val.isEmpty
-                      ? translate.getTranslatedValue("Address is Required")
-                      : null,
-                  onChanged: (val) {
-                    sendMoneyData.receiverAddress = val;
-                  },
-                  decoration: inputDecoration.copyWith(
-                    labelText: translate.getTranslatedValue('Address'),
-                  ),
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Container(
-                      width: width*0.47,
-                      child: TextFormField(
-                        validator: (val) =>
-                        val.isEmpty
-                            ? translate.getTranslatedValue('State is Required')
-                            : null,
-                        onChanged: (val) {
-                          sendMoneyData.receiverState = val;
-                        },
-                        decoration: inputDecoration.copyWith(
-                          labelText: translate.getTranslatedValue('State'),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: width*0.47,
-                      child: TextFormField(
-                        keyboardType:TextInputType.numberWithOptions(
-                          decimal: true,
-                        ) ,
-                        validator: (val) =>
-                        val.isEmpty
-                            ? translate.getTranslatedValue('Zip Code Required')
-                            : null,
-                        onChanged: (val) {
-                          sendMoneyData.receiverZip = val;
-                        },
-                        decoration: inputDecoration.copyWith(
-                          labelText: translate.getTranslatedValue('Zip Code'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Container(
-                      width: width*0.47,
-                      child: DropdownButtonFormField(
-                        validator: (val) =>
-                        val==null
-                            ? translate.getTranslatedValue('Country is Required')
-                            : null,
-                        isExpanded: true,
-                        decoration: inputDecoration.copyWith(
-                            labelText:translate.getTranslatedValue('Country'),
-                        ),
-                        value: "Senegal",
-                        items:countryList.map((country){
-                          return DropdownMenuItem(
-                            value: country,
-                            child: Text(
-                              country,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (val){
-                          sendMoneyData.receiverCountry=val;
-                        },
-                      ),
-                    ),
-                    Container(
-                      width: width*0.47,
-                      child: TextFormField(
-                        validator: (input) => input.isValidEmail() ? null : translate.getTranslatedValue('Enter Valid Email'),
-                        onChanged: (val) {
-                          sendMoneyData.receiverEmail = val;
-                        },
-                        decoration: inputDecoration.copyWith(
-                          labelText: translate.getTranslatedValue('Email'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: <Widget>[
-                        Checkbox(
-                          value: sendMoneyData.withoutId??false,
-                          onChanged: (val){
-                            setState(() {
-                              sendMoneyData.withoutId =  val;
-                            });
-                          },
-                        ),
-                        Text(
-                            'Require ID'
-                        )
-                      ],
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Checkbox(
-                          value: sendMoneyData.requireOtp??false,
-                          onChanged: (val){
-                            setState(() {
-                              sendMoneyData.requireOtp =  val;
-                            });
-                          },
-                        ),
-                        Text(
-                            'Require OTP authentication'
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                Text(
-                  'Receiver Identification',
-                  style: TextStyle(
-                    fontSize: 25.0,
-
-                  ),
-
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Container(
-                      height: 70,
-                      width: width*0.47,
-                      child: DropdownButtonFormField(
-                        validator: (val) =>
-                        val==null
-                            ? translate.getTranslatedValue('Country is Required')
-                            : null,
-                        isExpanded: true,
-                        decoration: inputDecoration.copyWith(
-                            labelText:translate.getTranslatedValue('Country')
-                        ),
-                        value: 'Senegal',
-                        items:countryList.map((country){
-                          return DropdownMenuItem(
-                            value: country,
-                            child: Text(
-                              country,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (val){
-                          sendMoneyData.receiverIdentificationCountry = val;
-                        },
-                      ),
-                    ),
-                    Container(
-                      height: 70,
-                      width: width*0.47,
-                      child: DropdownButtonFormField(
-                        validator: (val) =>
-                        val==null
-                            ? translate.getTranslatedValue('Doc Type is Required')
-                            : null,
-                        isExpanded: true,
-                        decoration: inputDecoration.copyWith(
-                            labelText:translate.getTranslatedValue('Select Type')
-                        ),
-                        items:types.map((type){
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(
-                              type,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (val){
-                          sendMoneyData.receiverIdentificationType = val;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: <Widget>[
-                    Container(
-                      width: width*0.47,
-                      child: TextFormField(
-                        maxLength: 10,
-                        keyboardType:TextInputType.numberWithOptions(
-                          decimal: true,
-                        ) ,
-                        validator: (val) =>
-                        val.isEmpty
-                            ? translate.getTranslatedValue('Invalid ID Number')
-                            : null,
-                        onChanged: (val) {
-                          sendMoneyData.receiverIdentificationNumber = int.parse(val);
-                        },
-                        decoration: inputDecoration.copyWith(
-                          labelText: translate.getTranslatedValue('Identification Number'),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: (){
-                        _selectDate(context);
-                      },
-                      child: Container(
-                        height: 50.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.0),
-                          border: Border.all(color: primaryColor,width: 1.5)
-                        ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
                         width: width*0.47,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            validTillDate==null?
-                            Text(
-                              'Valid Till',
-                              style: TextStyle(
-                                  fontSize: 15.0,
-                                  color: Colors.grey
-                              ),
-                            ):
-                            Text(
-                                validTillDate.substring(0,10),
-                              style: TextStyle(
-                                fontSize: 15.0
-                              ),
-                            ),
-                            Icon(
-                              Icons.date_range_outlined,
-                            )
-                          ],
+                        child: TextFormField(
+                          initialValue: sendMoneyData.receiverGivenName,
+                          validator: (val) =>
+                          val.isEmpty
+                              ? translate.getTranslatedValue('Name is Required')
+                              : null,
+                          onChanged: (val) {
+                            sendMoneyData.receiverGivenName = val;
+                          },
+                          decoration: inputDecoration.copyWith(
+                            labelText: translate.getTranslatedValue('Given Name'),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                TextFormField(
-                  maxLength: 10,
-                  keyboardType:TextInputType.numberWithOptions(
-                    decimal: true,
-                  ) ,
-                  validator: (val) =>
-                  val.isEmpty
-                      ? translate.getTranslatedValue('Amount is required')
-                      : null,
-                  onChanged: (val) {
-                    checkFeeRequestModel.amount = int.parse(val);
-                    checkFeeRequestModel.transType = 'Wallet to Non Wallet';
-                    setState(() {
-                      _checkFee = CheckFeeApi().checkFee(checkFeeRequestModel, localData.token);
-                      sendMoneyData.receiverIdentificationAmount = int.parse(val);
-                    });
-                  },
-                  decoration: inputDecoration.copyWith(
-                    labelText: translate.getTranslatedValue('Amount'),
-                  ),
-                ),
-                Text(
-                  'XOF $fees will be charged as fee and XOF ${sendMoneyData.receiverIdentificationAmount??0} will be sent to the receiver',
-                  style: TextStyle(
-                      color: primaryColor,
-                      fontSize: 17.0
-                  ),
-                ),
-                SizedBox(height: 10.0,),
-                TextFormField(
-                  keyboardType: TextInputType.multiline,
-                  onChanged: (val) {
-                    sendMoneyData.note = val;
-                  },
-                  decoration:inputDecoration.copyWith(
-                      labelText: translate.getTranslatedValue("Note"),
-                      alignLabelWithHint: true
-                  ),
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: sendMoneyData.isInclusive??false,
-                      onChanged: (val){
-                        setState(() {
-                          sendMoneyData.isInclusive =  val;
-                        });
-                      },
-                    ),
-                    Text(
-                        'Sender pays transaction fees'
-                    )
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: sendMoneyData.interbank??true,
-                      onChanged: (val){
-                        setState(() {
-                          sendMoneyData.interbank =  val;
-                        });
-                      },
-                    ),
-                    Text(
-                        'Receiver can recieve from any bank'
-                    )
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: sendMoneyData.acceptedTerms??false,
-                      onChanged: (val){
-                        setState(() {
-                          sendMoneyData.acceptedTerms =  val;
-                        });
-                      },
-                    ),
-                    RichText(
-                      text: TextSpan(
-                          children: [
-                            TextSpan(
-                                text: translate.getTranslatedValue("I have read the"),
-                                style: TextStyle(
-                                    color: Colors.black54
-                                )
-                            ),
-                            TextSpan(
-                                text: translate.getTranslatedValue("Terms and Conditions"),
-                                style: TextStyle(
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.bold
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.pop(context);
-                                  }
-                            ),
-                          ]
+                      Container(
+                        width: width*0.47,
+                        child: TextFormField(
+                          initialValue: sendMoneyData.receiverFamilyName,
+                          validator: (val) =>
+                          val.isEmpty
+                              ? translate.getTranslatedValue('Family Name is required')
+                              : null,
+                          onChanged: (val) {
+                            sendMoneyData.receiverFamilyName = val;
+                          },
+                          decoration: inputDecoration.copyWith(
+                            labelText: translate.getTranslatedValue('Family Name'),
+                          ),
+                        ),
                       ),
-                    )
-                  ],
-                ),
-                SizedBox(height: 10.0,),
-                GreenButton(
-                  text: sendMoneyData.receiverIdentificationAmount==null?"Proceed":"Proceed XOF${sendMoneyData.receiverIdentificationAmount+fees}",
-                  onClicked: ()async{
-                      if(_formKey.currentState.validate()){
-                        sendMoneyData.acceptedTerms = sendMoneyData.acceptedTerms??false;
-                        if(sendMoneyData.acceptedTerms){
-                          sendMoneyData.withoutId=!sendMoneyData.withoutId??true;
-                          sendMoneyData.requireOtp=sendMoneyData.requireOtp??false;
-                          sendMoneyData.isInclusive=sendMoneyData.isInclusive??false;
-                          sendMoneyData.interbank=sendMoneyData.interbank??true;
-                          sendMoneyData.receiverIdentificationValidTill = validTillDate;
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextFormField(
+                    validator: (val) =>
+                    val.isEmpty
+                        ? translate.getTranslatedValue("Address is Required")
+                        : null,
+                    onChanged: (val) {
+                      sendMoneyData.receiverAddress = val;
+                    },
+                    decoration: inputDecoration.copyWith(
+                      labelText: translate.getTranslatedValue('Address'),
+                    ),
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        width: width*0.47,
+                        child: TextFormField(
+                          validator: (val) =>
+                          val.isEmpty
+                              ? translate.getTranslatedValue('State is Required')
+                              : null,
+                          onChanged: (val) {
+                            sendMoneyData.receiverState = val;
+                          },
+                          decoration: inputDecoration.copyWith(
+                            labelText: translate.getTranslatedValue('State'),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: width*0.47,
+                        child: TextFormField(
+                          keyboardType:TextInputType.numberWithOptions(
+                            decimal: true,
+                          ) ,
+                          validator: (val) =>
+                          val.isEmpty
+                              ? translate.getTranslatedValue('Zip Code Required')
+                              : null,
+                          onChanged: (val) {
+                            sendMoneyData.receiverZip = val;
+                          },
+                          decoration: inputDecoration.copyWith(
+                            labelText: translate.getTranslatedValue('Zip Code'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        width: width*0.47,
+                        child: DropdownButtonFormField(
+                          validator: (val) =>
+                          val==null
+                              ? translate.getTranslatedValue('Country is Required')
+                              : null,
+                          isExpanded: true,
+                          decoration: inputDecoration.copyWith(
+                              labelText:translate.getTranslatedValue('Country'),
+                          ),
+                          value: sendMoneyData.receiverCountry??"Senegal",
+                          items:countryList.map((country){
+                            return DropdownMenuItem(
+                              value: country,
+                              child: Text(
+                                country,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val){
+                            sendMoneyData.receiverCountry=val;
+                          },
+                        ),
+                      ),
+                      Container(
+                        width: width*0.47,
+                        child: TextFormField(
+                          initialValue: sendMoneyData.receiverEmail,
+                          validator: (input) => input.isValidEmail() ? null : translate.getTranslatedValue('Enter Valid Email'),
+                          onChanged: (val) {
+                            sendMoneyData.receiverEmail = val;
+                          },
+                          decoration: inputDecoration.copyWith(
+                            labelText: translate.getTranslatedValue('Email'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: sendMoneyData.withoutId??false,
+                            onChanged: (val){
+                              setState(() {
+                                sendMoneyData.withoutId =  val;
+                              });
+                            },
+                          ),
+                          Text(
+                              'Require ID'
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: sendMoneyData.requireOtp??false,
+                            onChanged: (val){
+                              setState(() {
+                                sendMoneyData.requireOtp =  val;
+                              });
+                            },
+                          ),
+                          Text(
+                              'Require OTP authentication'
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  Text(
+                    'Receiver Identification',
+                    style: TextStyle(
+                      fontSize: 25.0,
+
+                    ),
+
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        height: 70,
+                        width: width*0.47,
+                        child: DropdownButtonFormField(
+                          validator: (val) =>
+                          val==null
+                              ? translate.getTranslatedValue('Country is Required')
+                              : null,
+                          isExpanded: true,
+                          decoration: inputDecoration.copyWith(
+                              labelText:translate.getTranslatedValue('Country')
+                          ),
+                          value: 'Senegal',
+                          items:countryList.map((country){
+                            return DropdownMenuItem(
+                              value: country,
+                              child: Text(
+                                country,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val){
+                            sendMoneyData.receiverIdentificationCountry = val;
+                          },
+                        ),
+                      ),
+                      Container(
+                        height: 70,
+                        width: width*0.47,
+                        child: DropdownButtonFormField(
+                          validator: (val) =>
+                          val==null
+                              ? translate.getTranslatedValue('Doc Type is Required')
+                              : null,
+                          isExpanded: true,
+                          decoration: inputDecoration.copyWith(
+                              labelText:translate.getTranslatedValue('Select Type')
+                          ),
+                          items:types.map((type){
+                            return DropdownMenuItem(
+                              value: type,
+                              child: Text(
+                                type,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val){
+                            sendMoneyData.receiverIdentificationType = val;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: <Widget>[
+                      Container(
+                        width: width*0.47,
+                        child: TextFormField(
+                          maxLength: 10,
+                          keyboardType:TextInputType.numberWithOptions(
+                            decimal: true,
+                          ) ,
+                          validator: (val) =>
+                          val.isEmpty
+                              ? translate.getTranslatedValue('Invalid ID Number')
+                              : null,
+                          onChanged: (val) {
+                            sendMoneyData.receiverIdentificationNumber = int.parse(val);
+                          },
+                          decoration: inputDecoration.copyWith(
+                            labelText: translate.getTranslatedValue('Identification Number'),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: (){
+                          _selectDate(context);
+                        },
+                        child: Container(
+                          height: 50.0,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            border: Border.all(color: primaryColor,width: 1.5)
+                          ),
+                          width: width*0.47,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              validTillDate==null?
+                              Text(
+                                'Valid Till',
+                                style: TextStyle(
+                                    fontSize: 15.0,
+                                    color: Colors.grey
+                                ),
+                              ):
+                              Text(
+                                  validTillDate.substring(0,10),
+                                style: TextStyle(
+                                  fontSize: 15.0
+                                ),
+                              ),
+                              Icon(
+                                Icons.date_range_outlined,
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextFormField(
+                    maxLength: 10,
+                    keyboardType:TextInputType.numberWithOptions(
+                      decimal: true,
+                    ) ,
+                    validator: (val) =>
+                    val.isEmpty
+                        ? translate.getTranslatedValue('Amount is required')
+                        : null,
+                    onChanged: (val) {
+                      checkFeeRequestModel.amount = int.parse(val);
+                      checkFeeRequestModel.transType = 'Wallet to Non Wallet';
+                      setState(() {
+                        _checkFee = CheckFeeApi().checkFee(checkFeeRequestModel, localData.token);
+                        sendMoneyData.receiverIdentificationAmount = int.parse(val);
+                      });
+                    },
+                    decoration: inputDecoration.copyWith(
+                      labelText: translate.getTranslatedValue('Amount'),
+                    ),
+                  ),
+                  Text(
+                    'XOF $fees will be charged as fee and XOF ${sendMoneyData.receiverIdentificationAmount??0} will be sent to the receiver',
+                    style: TextStyle(
+                        color: primaryColor,
+                        fontSize: 17.0
+                    ),
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextFormField(
+                    keyboardType: TextInputType.multiline,
+                    onChanged: (val) {
+                      sendMoneyData.note = val;
+                    },
+                    decoration:inputDecoration.copyWith(
+                        labelText: translate.getTranslatedValue("Note"),
+                        alignLabelWithHint: true
+                    ),
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: sendMoneyData.isInclusive??false,
+                        onChanged: (val){
                           setState(() {
-                            isApiCallProgress = true;
+                            sendMoneyData.isInclusive =  val;
                           });
-                          SendMoneyToNonWalletResponseModel responseModel =await SendMoneyToNonWalletApi().sendMoneyToNonWallet(localData.token, sendMoneyData);
+                        },
+                      ),
+                      Text(
+                          'Sender pays transaction fees'
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: sendMoneyData.interbank??true,
+                        onChanged: (val){
                           setState(() {
-                            isApiCallProgress = false;
+                            sendMoneyData.interbank =  val;
                           });
-                          if(responseModel!=null){
-                            Fluttertoast.showToast(msg: responseModel.message);
-                            if(responseModel.status==1){
-                              Get.offAll(()=>SuccessScreen(message: responseModel.message,balance: responseModel.balance,));
+                        },
+                      ),
+                      Text(
+                          'Receiver can recieve from any bank'
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: sendMoneyData.acceptedTerms??false,
+                        onChanged: (val){
+                          setState(() {
+                            sendMoneyData.acceptedTerms =  val;
+                          });
+                        },
+                      ),
+                      RichText(
+                        text: TextSpan(
+                            children: [
+                              TextSpan(
+                                  text: translate.getTranslatedValue("I have read the"),
+                                  style: TextStyle(
+                                      color: Colors.black54
+                                  )
+                              ),
+                              TextSpan(
+                                  text: translate.getTranslatedValue("Terms and Conditions"),
+                                  style: TextStyle(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.pop(context);
+                                    }
+                              ),
+                            ]
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 10.0,),
+                  GreenButton(
+                    text: sendMoneyData.receiverIdentificationAmount==null?"Proceed":"Proceed XOF${sendMoneyData.receiverIdentificationAmount+fees}",
+                    onClicked: ()async{
+                        if(_formKey.currentState.validate()){
+                          sendMoneyData.acceptedTerms = sendMoneyData.acceptedTerms??false;
+                          if(sendMoneyData.acceptedTerms){
+                            sendMoneyData.withoutId=sendMoneyData.withoutId??false;
+                            sendMoneyData.withoutId=!sendMoneyData.withoutId;
+                            sendMoneyData.requireOtp=sendMoneyData.requireOtp??false;
+                            sendMoneyData.isInclusive=sendMoneyData.isInclusive??false;
+                            sendMoneyData.interbank=sendMoneyData.interbank??true;
+                            sendMoneyData.receiverIdentificationValidTill = validTillDate;
+                            setState(() {
+                              isApiCallProgress = true;
+                            });
+                            SendMoneyToNonWalletResponseModel responseModel =await SendMoneyToNonWalletApi().sendMoneyToNonWallet(localData.token, sendMoneyData);
+                            setState(() {
+                              isApiCallProgress = false;
+                            });
+                            if(responseModel!=null){
+                              Fluttertoast.showToast(msg: responseModel.message);
+                              if(responseModel.status==1){
+                                Get.offAll(()=>SuccessScreen(message: responseModel.message,transactionId: responseModel.transactionId,));
+                              }
+                            }else{
+                              Fluttertoast.showToast(msg: 'Something went wrong');
                             }
                           }else{
-                            Fluttertoast.showToast(msg: 'Something went wrong');
+                            Fluttertoast.showToast(msg: 'Accept Terms and Conditions');
                           }
-                        }else{
-                          Fluttertoast.showToast(msg: 'Accept Terms and Conditions');
                         }
-                      }
-                    },
-                )
-              ],
+                      },
+                  ),
+                  SizedBox(height: 20.0,),
+                ],
+              ),
             ),
           );
         }

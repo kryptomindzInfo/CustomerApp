@@ -23,7 +23,7 @@ class SendMoneyToWalletRequestModel {
   bool isInclusive;
   String note;
   String receiverMobile;
-  int sendingAmount;
+  double sendingAmount;
 
   factory SendMoneyToWalletRequestModel.fromJson(Map<String, dynamic> json) => SendMoneyToWalletRequestModel(
     acceptedTerms: json["acceptedTerms"],
@@ -55,15 +55,18 @@ class SendMoneyToWalletResponseModel {
     this.status,
     this.message,
     this.balance,
+    this.transactionId
   });
 
   int status;
   String message;
   double balance;
+  String transactionId;
 
   factory SendMoneyToWalletResponseModel.fromJson(Map<String, dynamic> json) => SendMoneyToWalletResponseModel(
     status: json["status"],
     message: json["message"],
+    transactionId: json["transaction_code"],
     balance: json["balance"].toDouble(),
   );
 

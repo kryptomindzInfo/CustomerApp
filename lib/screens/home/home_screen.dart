@@ -1,20 +1,19 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:beyond_wallet/api_services/get_balance_api.dart';
 import 'package:beyond_wallet/api_services/get_contacts_api.dart';
 import 'package:beyond_wallet/api_services/get_transaction_history_api.dart';
 import 'package:beyond_wallet/constants/constants.dart';
 import 'package:beyond_wallet/controller/balance_controller.dart';
-import 'package:beyond_wallet/controller/get_banks_controller.dart';
 import 'package:beyond_wallet/localization/localization.dart';
-import 'package:beyond_wallet/models/get_balance_model.dart';
 import 'package:beyond_wallet/models/get_contacts_model.dart';
 import 'package:beyond_wallet/models/get_transaction_history_model.dart';
 import 'package:beyond_wallet/models/login_model.dart';
 import 'package:beyond_wallet/screens/authentication/login.dart';
-import 'package:beyond_wallet/screens/pay_bills/show_merchant_list.dart';
+import 'package:beyond_wallet/screens/pay_bills/my_merchants.dart';
+import 'package:beyond_wallet/screens/profile/profile.dart';
+import 'package:beyond_wallet/screens/reports/reports.dart';
 import 'package:beyond_wallet/screens/send_money/send_money.dart';
 import 'package:beyond_wallet/services/shared_prefs.dart';
-import 'package:beyond_wallet/widgets/appBar.dart';
+import 'package:beyond_wallet/widgets/networkImage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -34,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var height;
   var translate;
   LocalData localData;
+  LoginResponseModel _loginResponseModel;
   Future _getContacts;
   Future _getTransactionHistory;
 
@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     localData = Provider.of<LocalData>(context,listen: false);
     _getContacts = GetContactsApi().getContacts(localData.token);
+    _loginResponseModel = Get.find<LoginResponseModel>();
     _getTransactionHistory = GetTransactionHistoryApi().getTransactionHistory(localData.token);
   }
   String _getInitials(String text){
@@ -59,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _refreshController.refreshCompleted();
     _getContacts = GetContactsApi().getContacts(localData.token);
     _getTransactionHistory = GetTransactionHistoryApi().getTransactionHistory(localData.token);
+    setState(() {});
   }
 
   void _onLoading() async{
@@ -77,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: PreferredSize(
         child: new Container(
+          height: height*0.13,
           width: double.infinity,
           padding: new EdgeInsets.only(
               top: MediaQuery.of(context).padding.top
@@ -84,28 +87,109 @@ class _HomeScreenState extends State<HomeScreen> {
           child: new Padding(
             padding: const EdgeInsets.only(
                 left: 10.0,
-                top: 20.0,
-                bottom: 20.0
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                new Text(
-                  'Dashboard',
-                  style: new TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white
-                  ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      child:networkImage(_loginResponseModel.bank.logo),
+                    ),
+                    SizedBox(width: 20.0,),
+                    new Text(
+                      _loginResponseModel.bank.name,
+                      style: new TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 10.0),
-                  child: InkWell(
-                      onTap: (){
-                        Get.offAll(()=>Login());
+                  child: PopupMenuButton(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                      ),
+                      color: Colors.white,
+                      onSelected: (val){
+                        switch(val){
+                          case 'reports':
+                            Get.to(()=>Reports());
+                            break;
+                          case 'myBanks':
+                            break;
+                          case 'notifications':
+                            break;
+                          case 'profile':
+                            Get.to(()=>Profile());
+                            break;
+                          case 'logout':
+                            Get.offAll(()=>Login());
+                            break;
+                        }
                       },
-                      child: Icon(Icons.logout,color: Colors.white,)
-                  ),
+                      itemBuilder: (_) => <PopupMenuItem<String>>[
+                        PopupMenuItem<String>(
+                            value: 'reports',
+                            child: Row(
+                              children: [
+                                Icon(
+                                    Icons.assignment,
+                                ),
+                                SizedBox(width: 10.0,),
+                                new Text('Reports'),
+                              ],
+                            )),
+                        PopupMenuItem<String>(
+                            value: 'myBanks',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.attach_money,
+                                ),
+                                SizedBox(width: 10.0,),
+                                new Text('My Banks'),
+                              ],
+                            )),
+                        PopupMenuItem<String>(
+                            value: 'notifications',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.notifications,
+                                ),
+                                SizedBox(width: 10.0,),
+                                new Text('Notifications'),
+                              ],
+                            )),
+                        PopupMenuItem<String>(
+                            value: 'profile',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                ),
+                                SizedBox(width: 10.0,),
+                                new Text('My Profile'),
+                              ],
+                            )),
+                        PopupMenuItem<String>(
+                            value: 'logout',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.logout,
+                                ),
+                                SizedBox(width: 10.0,),
+                                new Text('Logout'),
+                              ],
+                            )),
+                      ]
+                  )
                 )
               ],
             ),
@@ -166,62 +250,72 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: <Widget>[
               BaseTile(
-                 child:Padding(
-                   padding: const EdgeInsets.symmetric(vertical: 10),
-                   child: Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                     children: <Widget>[
-                       _balanceWidget(getBalance),
-                       RoundButton(
-                         child: Container(
-                           height: 30,
-                           child: SvgPicture.asset(
-                             'assets/images/send_money.svg',
-                             color: Colors.white,
-                           ),
+                 child:Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                   children: <Widget>[
+                     _balanceWidget(getBalance),
+                     RoundButton(
+                       child: Container(
+                         height: 30,
+                         child: SvgPicture.asset(
+                           'assets/images/send_money.svg',
+                           color: Colors.white,
                          ),
-                         color: primaryColor,
-                         text: 'Send Money',
-                         function: (){
-                           Get.to(()=>SendMoney());
-                         },
                        ),
-                       RoundButton(
-                         child: Container(
-                           height: 30,
-                           child: SvgPicture.asset(
-                             'assets/images/pay_bill.svg',
-                             color: Colors.white,
-                           ),
+                       color: primaryColor,
+                       text: 'Send Money',
+                       function: (){
+                         Get.to(()=>SendMoney());
+                       },
+                     ),
+                     RoundButton(
+                       child: Container(
+                         height: 30,
+                         child: SvgPicture.asset(
+                           'assets/images/pay_bill.svg',
+                           color: Colors.white,
                          ),
-                         color: primaryColor,
-                         text: 'Pay Bills',
-                         function: (){
-                           Get.to(()=>ShowMerchantList());
-                         },
-                       )
-                     ],
-                   ),
+                       ),
+                       color: primaryColor,
+                       text: 'My Merchants',
+                       function: (){
+                         Get.to(()=>MyMerchants());
+                       },
+                     )
+                   ],
                  ),
+                height: height * 0.17,
               ),
               SizedBox(height: 10.0,),
               BaseTile(
-                height: 150,
+                height: height * 0.2,
                 width: MediaQuery.of(context).size.width,
                 child: FutureBuilder<GetContactsResponseModel>(
                     future: _getContacts,
                     builder: (context, snapshot) {
                       if(snapshot.hasData){
-                        List<String> contacts=[];
+                        List<Map> contacts=[];
                         for(Wallet contact in snapshot.data.contacts.wallet){
-                          contacts.add(contact.name);
+                          contacts.add({
+                            'name' : contact.name,
+                            'walletId' : contact.id,
+                            'mobile' : contact.mobile,
+                            'type' : 'ww'
+                          });
                         }
                         for(NonWallet contact in snapshot.data.contacts.nonWallet){
-                          contacts.add(contact.name);
+                          contacts.add({
+                            'name' : contact.name,
+                            'walletId' : contact.id,
+                            'mobile' : contact.mobile,
+                            'lastName' : contact.lastName,
+                            'email' : contact.email,
+                            'country' : contact.country,
+                            'type' : 'nw'
+                          });
                         }
                         return Column(
                           crossAxisAlignment : CrossAxisAlignment.start,
-                          //mainAxisAlignment : MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
                               'Contacts',
@@ -239,15 +333,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       RoundButton(
                                         child: Text(
-                                          _getInitials(contacts[index]),
+                                          _getInitials(contacts[index]['name']),
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 25.0
                                           ),
                                         ),
                                         fontColor: Colors.black,
-                                        function: (){},
-                                        text: contacts[index],
+                                        function: (){
+                                          Get.to(()=>SendMoney(
+                                            contact: contacts[index],
+                                          ));
+                                        },
+                                        text: contacts[index]['name'],
                                         color: Colors.grey,
                                       ),
                                       SizedBox(width: 10.0,)
@@ -273,31 +371,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       Container(
-                        height:70.0,
+                        height: 60,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             CircleAvatar(
                                 backgroundColor: primaryColor,
-                                radius: 30.0,
+                                radius: 25.0,
                                 child: Text(
                                     _getInitials(localData.data.name),
                                   style: TextStyle(
-                                    fontSize: 25.0,
+                                    fontSize: 20.0,
                                     color: Colors.white
                                   ),
                                 ),
                             ),
                             Expanded(
                               child: ListTile(
-                                title: Text(
-                                  'Recent Activity',
+                                title: AutoSizeText(
+                                  'My Activities',
+                                  maxLines: 1,
                                   style: TextStyle(
-                                    fontSize: 25.0,
+                                    fontSize: 20.0,
                                   ),
-                                ),
-                                subtitle: Text(
-                                  'E-wallet Activity'
                                 ),
                               ),
                             )
@@ -313,46 +409,56 @@ class _HomeScreenState extends State<HomeScreen> {
                               return ListView.builder(
                                 itemCount: snapshot.data.history.length,
                                 itemBuilder: (context,index){
-                                  return Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: BaseTile(
-                                          child: ListTile(
-                                              title: Text(
-                                                snapshot.data.history[lastIndex-index].value.remarks,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                ),
-                                              ),
-                                              subtitle:Text(
-                                                  DateTime.parse(snapshot.data.history[lastIndex-index].timestamp.substring(0,19)).toLocal().toString()
-                                              ),
-                                              trailing: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                  return Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: BaseTile(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                                        textBaseline:TextBaseline.alphabetic,
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   AutoSizeText(
-                                                    snapshot.data.history[lastIndex-index].value.amount.toString(),
-                                                    maxLines :1,
+                                                    snapshot.data.history[lastIndex-index].value.txData[0].remarks,
                                                     style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 25.0
+                                                        fontWeight: FontWeight.bold
                                                     ),
+                                                    maxLines: 1,
                                                   ),
                                                   Text(
-                                                    snapshot.data.history[lastIndex-index].value.action,
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 15.0,
-                                                        color: Colors.green
-                                                    ),
+                                                      convertDateTime(DateTime.parse(snapshot.data.history[lastIndex-index].timestamp.substring(0,19)).toLocal())
                                                   ),
                                                 ],
-                                              )
                                           ),
-                                        ),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              AutoSizeText(
+                                                snapshot.data.history[lastIndex-index].value.txData[0].amount.toString(),
+                                                maxLines :1,
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20.0
+                                                ),
+                                              ),
+                                              Text(
+                                                snapshot.data.history[lastIndex-index].value.action,
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15.0,
+                                                    color: Colors.green
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                        ],
                                       ),
-                                    ],
+                                      height: height*0.1,
+                                    ),
                                   );
                                 },
                               );
@@ -377,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(10.0),
       width: width * 0.38 ,
-      height: 100,
+      height: height * 0.12,
       decoration: BoxDecoration(
         color: balanceTileColor,
         borderRadius: BorderRadius.circular(15.0),
@@ -386,20 +492,23 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          Text(
+          AutoSizeText(
             translate.getTranslatedValue('My Balance'),
+            maxLines: 1,
             style: TextStyle(
                 fontSize: 20.0,
                 color: Colors.white
             ),
           ),
-          balance.loading?Center(child: CircularProgressIndicator()):AutoSizeText(
-            balance.balance.toString(),
-            maxLines: 1,
-            style: TextStyle(
-                fontSize: 35.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold
+          balance.loading?Center(child: CircularProgressIndicator()):Expanded(
+            child: AutoSizeText(
+              balance.balance.toString(),
+              maxLines: 1,
+              style: TextStyle(
+                  fontSize: 35.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold
+              ),
             ),
           )
         ],
@@ -419,16 +528,17 @@ class RoundButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
     return InkWell(
       onTap: function,
       child: Container(
-        height: 100.0,
+        height: height * 0.12,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             Container(
-              height: 60,
-              width: 60,
+              height: height * 0.08,
+              width: height * 0.08,
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(50.0),
